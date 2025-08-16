@@ -1,6 +1,7 @@
-use axum::{Router, serve};
+use axum::{Router, serve, http::StatusCode};
 use std::env;
 use tokio::net::TcpListener;
+use tower::Service;
 use tower_http::trace::TraceLayer;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -26,6 +27,9 @@ async fn main() {
 
     // Create unified router by merging embeddings and inference routers
     let embeddings_router = embeddings_engine::create_embeddings_router();
+    // Get the inference router directly from the inference engine
+    let inference_router = inference_engine::create_inference_router();
+
 
     // Create CORS layer
     let cors = CorsLayer::new()
@@ -33,11 +37,6 @@ async fn main() {
         .allow_methods(Any)
         .allow_headers(Any);
 
-    // For now, we'll create a simplified inference router without the complex model loading
-    // This demonstrates the unified structure - full inference functionality would require
-    // proper model initialization which is complex and resource-intensive
-    let inference_router = Router::new()
-        .route("/v1/chat/completions", axum::routing::post(simple_chat_completions));
 
     // Merge the routers
     let app = Router::new()
@@ -55,50 +54,11 @@ async fn main() {
     tracing::info!("Unified predict-otron-9000 server listening on {}", listener.local_addr().unwrap());
     tracing::info!("Available endpoints:");
     tracing::info!("  GET  / - Root endpoint from embeddings-engine");
-    tracing::info!("  POST /v1/embeddings - Text embeddings from embeddings-engine");
-    tracing::info!("  POST /v1/chat/completions - Chat completions (simplified)");
+    tracing::info!("  POST /v1/embeddings - Text embeddings");
+    tracing::info!("  POST /v1/chat/completions - Chat completions");
 
     serve(listener, app).await.unwrap();
 }
 
-// Simplified chat completions handler for demonstration
-async fn simple_chat_completions(
-    axum::Json(request): axum::Json<serde_json::Value>,
-) -> axum::Json<serde_json::Value> {
-    use uuid::Uuid;
-
-    tracing::info!("Received chat completion request");
-
-    // Extract model from request or use default
-    let model = request.get("model")
-        .and_then(|m| m.as_str())
-        .unwrap_or("gemma-2b-it")
-        .to_string();
-
-    // For now, return a simple response indicating the unified server is working
-    // Full implementation would require model loading and text generation
-    let response = serde_json::json!({
-        "id": format!("chatcmpl-{}", Uuid::new_v4().to_string().replace("-", "")),
-        "object": "chat.completion",
-        "created": std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs(),
-        "model": model,
-        "choices": [{
-            "index": 0,
-            "message": {
-                "role": "assistant",
-                "content": "Hello! This is the unified predict-otron-9000 server. The embeddings and inference engines have been successfully merged into a single axum server. For full inference functionality, the complex model loading from inference-engine would need to be integrated."
-            },
-            "finish_reason": "stop"
-        }],
-        "usage": {
-            "prompt_tokens": 10,
-            "completion_tokens": 35,
-            "total_tokens": 45
-        }
-    });
-
-    axum::Json(response)
-}
+// Chat completions handler that properly uses the inference server crate's error handling
+// This function is no longer needed as we're using the inference_engine router directly
