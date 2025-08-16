@@ -1,4 +1,4 @@
-# @open-web-agent-rs/inference-engine
+# inference-engine
 
 A Rust-based inference engine for running large language models locally. This tool supports both CLI mode for direct text generation and server mode with an OpenAI-compatible API.
 
