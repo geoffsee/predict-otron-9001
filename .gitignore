@@ -1,0 +1,5 @@
+.idea/
+.fastembed_cache/
+target/
+/.output.txt
+/*.iml

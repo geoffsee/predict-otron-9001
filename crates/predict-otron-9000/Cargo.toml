@@ -1,0 +1,22 @@
+[package]
+name = "predict-otron-9000"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# Axum web framework
+axum = "0.8.4"
+tokio = { version = "1.45.1", features = ["full"] }
+tower = "0.5.2"
+tower-http = { version = "0.6.6", features = ["trace", "cors"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1.7.0", features = ["v4"] }
+
+# Dependencies for embeddings functionality
+embeddings-engine = { path = "../embeddings-engine" }
+
+# Dependencies for inference functionality
+inference-engine = { path = "../inference-engine" }

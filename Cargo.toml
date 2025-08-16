@@ -1,0 +1,3 @@
+[workspace]
+members = ["crates/predict-otron-9000"]
+resolver = "2"
