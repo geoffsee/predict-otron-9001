@@ -3,7 +3,7 @@
 _Warning: Do NOT use this in production unless you are cool like that._
 
 <p align="center">
-  <img src="https://github.com/seemueller-io/predict-otron-9000/blob/main/predict-otron-9000.png?raw=true" width="250" />
+  <img src="https://github.com/geoffsee/predict-otron-9000/blob/main/predict-otron-9000.png?raw=true" width="250" />
 </p>
 
 <p align="center">
