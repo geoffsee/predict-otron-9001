@@ -1,7 +1,15 @@
 # predict-otron-9000
-> Aliens, in a native executable.
 
 _Warning: Do NOT use this in production unless you are cool like that._
+
+<p align="center">
+  <img src="https://github.com/seemueller-io/predict-otron-9000/blob/main/predict-otron-9000.png?raw=true" width="250" />
+</p>
+
+<p align="center">
+Aliens, in a native executable.
+</p>
+
 
 ## Features
 - **OpenAI Compatible**: API endpoints match OpenAI's format for easy integration
