@@ -13,8 +13,6 @@ pub use text_generation::TextGeneration;
 pub use token_output_stream::TokenOutputStream;
 pub use server::{AppState, create_router};
 
-use axum::{Json, http::StatusCode, routing::post, Router};
-use serde_json;
 use std::env;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -44,27 +42,4 @@ pub fn init_tracing() {
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
-}
-
-/// Create a simplified inference router that returns appropriate error messages
-/// indicating that full model loading is required for production use
-pub fn create_inference_router() -> Router {
-    Router::new()
-        .route("/v1/chat/completions", post(simplified_chat_completions))
-}
-
-async fn simplified_chat_completions(
-    axum::Json(request): axum::Json<serde_json::Value>,
-) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
-    // Return the same error message as the actual server implementation
-    // to indicate that full inference functionality requires proper model initialization
-    Err((
-        StatusCode::BAD_REQUEST,
-        Json(serde_json::json!({
-            "error": {
-                "message": "The OpenAI API is currently not supported due to compatibility issues with the tensor operations. Please use the CLI mode instead with: cargo run --bin inference-engine -- --prompt \"Your prompt here\"",
-                "type": "unsupported_api"
-            }
-        })),
-    ))
 }

@@ -3,3 +3,5 @@
 target/
 /.output.txt
 /*.iml
+dist
+node_modules/

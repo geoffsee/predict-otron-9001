@@ -1,4 +1,4 @@
-// use candle_core::Tensor;
+use candle_core::Tensor;
 use candle_transformers::models::gemma::{Config as Config1, Model as Model1};
 use candle_transformers::models::gemma2::{Config as Config2, Model as Model2};
 use candle_transformers::models::gemma3::{Config as Config3, Model as Model3};

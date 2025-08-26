@@ -1,12 +1,7 @@
 [package]
-name = "inference-engine"
+name = "legacy-inference-engine"
 version = "0.1.0"
 edition = "2021"
-
-[[bin]]
-name="cli"
-path = "src/cli_main.rs"
-
 
 [dependencies]
 accelerate-src = { version = "0.3.2", optional = true }
@@ -39,21 +34,20 @@ anyhow = "1.0.98"
 clap= { version = "4.2.4", features = ["derive"] }
 tracing = "0.1.37"
 tracing-chrome = "0.7.1"
-tracing-subscriber = { version = "0.3.7", features = ["env-filter"] }
-axum = { version = "0.8.4", features = ["json"] }
-tower = "0.5.2"
-tower-http = { version = "0.6.6", features = ["cors"] }
+tracing-subscriber = "0.3.7"
+axum = { version = "0.7.4", features = ["json"] }
+tower = "0.4.13"
+tower-http = { version = "0.5.1", features = ["cors"] }
 tokio = { version = "1.43.0", features = ["full"] }
 either = { version = "1.9.0", features = ["serde"] }
 utoipa = { version = "4.2.0", features = ["axum_extras"] }
 uuid = { version = "1.7.0", features = ["v4"] }
 reborrow = "0.5.5"
-futures-util = "0.3.31"
 
 # --- Add this section for conditional compilation ---
 [target.'cfg(target_os = "macos")'.dependencies]
-# Use CPU backend for macOS to avoid Metal rotary-emb implementation issues
-candle-core = { version = "=0.9.1", features = ["metal"], optional = false }
+candle-core = { version = "=0.9.1", features = ["metal"] }
+metal = { version = "0.32.0", features = ["mps"] }
 
 [target.'cfg(not(target_os = "macos"))'.dependencies]
 # For Linux or other non-macOS systems, you likely want the CPU backend or CUDA

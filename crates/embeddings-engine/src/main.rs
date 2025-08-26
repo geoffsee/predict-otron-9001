@@ -124,7 +124,6 @@ async fn embeddings_create(
 
 fn create_app() -> Router {
 	Router::new()
-        .route("/", get(root))
         .route("/v1/embeddings", post(embeddings_create))
         .layer(TraceLayer::new_for_http())
 }

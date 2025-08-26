@@ -1,0 +1,107 @@
+warning: unused import: `candle_core::Tensor`
+ --> crates/inference-engine/src/model.rs:1:5
+  |
+1 | use candle_core::Tensor;
+  |     ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `Config as Config1`
+ --> crates/inference-engine/src/model.rs:2:42
+  |
+2 | use candle_transformers::models::gemma::{Config as Config1, Model as Model1};
+  |                                          ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Config as Config2`
+ --> crates/inference-engine/src/model.rs:3:43
+  |
+3 | use candle_transformers::models::gemma2::{Config as Config2, Model as Model2};
+  |                                           ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Config as Config3`
+ --> crates/inference-engine/src/model.rs:4:43
+  |
+4 | use candle_transformers::models::gemma3::{Config as Config3, Model as Model3};
+  |                                           ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ArrayBuilder`
+  --> crates/inference-engine/src/openai_types.rs:23:27
+   |
+23 |     use utoipa::openapi::{ArrayBuilder, ObjectBuilder, OneOfBuilder, RefOr, Schema...
+   |                           ^^^^^^^^^^^^
+
+warning: unused import: `IntoResponse`
+ --> crates/inference-engine/src/server.rs:4:38
+  |
+4 |     response::{sse::Event, sse::Sse, IntoResponse},
+  |                                      ^^^^^^^^^^^^
+
+warning: unused import: `future`
+ --> crates/inference-engine/src/server.rs:9:31
+  |
+9 | use futures_util::{StreamExt, future};
+  |                               ^^^^^^
+
+warning: unused import: `std::io::Write`
+ --> crates/inference-engine/src/text_generation.rs:5:5
+  |
+5 | use std::io::Write;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `StreamExt`
+ --> crates/inference-engine/src/server.rs:9:20
+  |
+9 | use futures_util::{StreamExt, future};
+  |                    ^^^^^^^^^
+
+warning: method `apply_cached_repeat_penalty` is never used
+  --> crates/inference-engine/src/text_generation.rs:47:8
+   |
+22 | impl TextGeneration {
+   | ------------------- method in this implementation
+...
+47 |     fn apply_cached_repeat_penalty(
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: unused import: `get`
+ --> crates/embeddings-engine/src/lib.rs:3:47
+  |
+3 |     response::Json as ResponseJson, routing::{get, post},
+  |                                               ^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/embeddings-engine/src/lib.rs:9:13
+  |
+9 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: `inference-engine` (lib) generated 10 warnings (run `cargo fix --lib -p inference-engine` to apply 7 suggestions)
+warning: `embeddings-engine` (lib) generated 2 warnings (run `cargo fix --lib -p embeddings-engine` to apply 2 suggestions)
+warning: unused import: `axum::response::IntoResponse`
+ --> crates/predict-otron-9000/src/main.rs:8:5
+  |
+8 | use axum::response::IntoResponse;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: `predict-otron-9000` (bin "predict-otron-9000") generated 1 warning (run `cargo fix --bin "predict-otron-9000"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.14s
+     Running `target/release/predict-otron-9000`
+avx: false, neon: true, simd128: false, f16c: false
+[2m2025-08-27T17:54:45.554609Z[0m [32m INFO[0m [2mhf_hub[0m[2m:[0m Using token file found "/Users/williamseemueller/.cache/huggingface/token"    
+[2m2025-08-27T17:54:45.555593Z[0m [32m INFO[0m [2mpredict_otron_9000::middleware::metrics[0m[2m:[0m Performance metrics summary:
+Checking model_id: 'google/gemma-3-1b-it'
+Trimmed model_id length: 20
+Using explicitly specified model type: InstructV3_1B
+retrieved the files in 1.332041ms
+Note: Using CPU for Gemma 3 model due to missing Metal implementations for required operations (e.g., rotary-emb).
+loaded the model in 879.2335ms
+
+thread 'main' panicked at crates/predict-otron-9000/src/main.rs:91:61:
+called `Result::unwrap()` on an `Err` value: Os { code: 48, kind: AddrInUse, message: "Address already in use" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

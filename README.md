@@ -15,6 +15,9 @@ Aliens, in a native executable.
 - **OpenAI Compatible**: API endpoints match OpenAI's format for easy integration
 - **Text Embeddings**: Generate high-quality text embeddings using the Nomic Embed Text v1.5 model
 - **Text Generation**: Chat completions with OpenAI-compatible API (simplified implementation)
+- **Performance Optimized**: Implements efficient caching and singleton patterns for improved throughput and reduced latency
+- **Performance Benchmarking**: Includes tools for measuring performance and generating HTML reports
+- **Web Chat Interface**: A Leptos-based WebAssembly chat interface for interacting with the inference engine
 
 ## Architecture
 
@@ -23,6 +26,7 @@ Aliens, in a native executable.
 - **`predict-otron-9000`**: Main unified server that combines both engines
 - **`embeddings-engine`**: Handles text embeddings using FastEmbed and Nomic models
 - **`inference-engine`**: Provides text generation capabilities (with modular design for various models)
+- **`leptos-chat`**: WebAssembly-based chat interface built with Leptos framework for interacting with the inference engine
 
 ## Installation
 
@@ -202,6 +206,10 @@ cargo test -p embeddings-engine
 cargo test -p inference-engine
 ```
 
+For comprehensive testing documentation, including unit tests, integration tests, end-to-end tests, and performance testing, please refer to the [TESTING.md](docs/TESTING.md) document.
+
+For performance benchmarking with HTML report generation, see the [BENCHMARKING.md](BENCHMARKING.md) guide.
+
 ### Adding Features
 
 1. **Embeddings Engine**: Modify `crates/embeddings-engine/src/lib.rs` to add new embedding models or functionality
@@ -223,11 +231,42 @@ export RUST_LOG=trace
 export RUST_LOG=predict_otron_9000=debug,embeddings_engine=trace
 ```
 
+## Chat Interface
+
+The project includes a WebAssembly-based chat interface built with the Leptos framework.
+
+### Building the Chat Interface
+
+```shell
+# Navigate to the leptos-chat crate
+cd crates/leptos-chat
+
+# Build the WebAssembly package
+cargo build --target wasm32-unknown-unknown
+
+# For development with trunk (if installed)
+trunk serve
+```
+
+### Usage
+
+The chat interface connects to the inference engine API and provides a user-friendly way to interact with the AI models. To use:
+
+1. Start the predict-otron-9000 server
+2. Open the chat interface in a web browser
+3. Enter messages and receive AI-generated responses
+
+The interface supports:
+- Real-time messaging with the AI
+- Visual indication of when the AI is generating a response
+- Message history display
+
 ## Limitations
 
 - **Inference Engine**: Currently provides a simplified implementation for chat completions. Full model loading and text generation capabilities from the inference-engine crate are not yet integrated into the unified server.
 - **Model Support**: Embeddings are limited to the Nomic Embed Text v1.5 model.
 - **Scalability**: Single-threaded model loading may impact performance under heavy load.
+- **Chat Interface**: The WebAssembly chat interface requires compilation to a static site before deployment.
 
 ## Contributing
 
@@ -236,3 +275,46 @@ export RUST_LOG=predict_otron_9000=debug,embeddings_engine=trace
 3. Make your changes and add tests
 4. Ensure all tests pass: `cargo test`
 5. Submit a pull request
+
+
+## Quick cURL verification for Chat Endpoints
+
+Start the unified server:
+
+```
+./run_server.sh
+```
+
+Non-streaming chat completion (expects JSON response):
+
+```
+curl -X POST http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemma-3-1b-it",
+    "messages": [
+      {"role": "user", "content": "Who was the 16th president of the United States?"}
+    ],
+    "max_tokens": 128,
+    "stream": false
+  }'
+```
+
+Streaming chat completion via Server-Sent Events (SSE):
+
+```
+curl -N -X POST http://localhost:8080/v1/chat/completions/stream \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemma-3-1b-it",
+    "messages": [
+      {"role": "user", "content": "Who was the 16th president of the United States?"}
+    ],
+    "max_tokens": 128,
+    "stream": true
+  }'
+```
+
+Helper scripts are also available:
+- scripts/curl_chat.sh
+- scripts/curl_chat_stream.sh

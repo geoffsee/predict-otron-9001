@@ -20,7 +20,7 @@ impl ToSchema<'_> for MessageInnerContent {
 
 /// Function for MessageInnerContent Schema generation to handle `Either`
 fn message_inner_content_schema() -> utoipa::openapi::Schema {
-    use utoipa::openapi::{ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaType};
+    use utoipa::openapi::{ArrayBuilder, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaType};
 
     Schema::OneOf(
         OneOfBuilder::new()
@@ -156,33 +156,6 @@ pub struct ChatCompletionResponse {
     pub model: String,
     pub choices: Vec<ChatCompletionChoice>,
     pub usage: Usage,
-}
-
-/// Delta for streaming responses - contains incremental content updates
-#[derive(Debug, Clone, Serialize, ToSchema)]
-pub struct Delta {
-    /// The role of the message sender (only in first chunk)
-    pub role: Option<String>,
-    /// The incremental content
-    pub content: Option<String>,
-}
-
-/// Chat completion choice for streaming chunks
-#[derive(Debug, Serialize, ToSchema)]
-pub struct ChatCompletionChunkChoice {
-    pub index: usize,
-    pub delta: Delta,
-    pub finish_reason: Option<String>,
-}
-
-/// Chat completion chunk for streaming responses
-#[derive(Debug, Serialize, ToSchema)]
-pub struct ChatCompletionChunk {
-    pub id: String,
-    pub object: String,
-    pub created: u64,
-    pub model: String,
-    pub choices: Vec<ChatCompletionChunkChoice>,
 }
 
 /// Token usage information

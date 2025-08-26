@@ -1,0 +1,6 @@
+{
+  "name": "@predict-otron-9000/ingeration",
+  "dependencies": {
+    "openai": "^5.16.0"
+  }
+}

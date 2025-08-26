@@ -7,6 +7,9 @@ extern crate intel_mkl_src;
 #[cfg(feature = "accelerate-src")]
 extern crate accelerate_src;
 
+#[cfg(feature = "metal")]
+extern crate metal_src;
+
 use anyhow::{Error as E, Result};
 use axum::{
     extract::State,
@@ -783,13 +786,27 @@ fn main() -> Result<()> {
     let tokenizer = Tokenizer::from_file(tokenizer_filename).map_err(E::msg)?;
 
     let start = std::time::Instant::now();
-    let device = utilities_lib::device(args.cpu)?;
+    let initial_device = utilities_lib::device(args.cpu)?;
+    
+    // Check if we're using a V3 model (Gemma 3) and if we're on Metal (macOS)
+    let is_v3_model = matches!(args.which, Which::BaseV3_1B | Which::InstructV3_1B);
+    let is_metal = !initial_device.is_cpu() && candle_core::utils::metal_is_available() && !args.cpu;
+    
+    // Use CPU for V3 models on Metal due to missing implementations
+    let device = if is_v3_model && is_metal {
+        println!("Note: Using CPU for Gemma 3 model due to missing Metal implementations for required operations (e.g., rotary-emb).");
+        Device::Cpu
+    } else {
+        initial_device
+    };
+    
     let dtype = if device.is_cuda() {
         DType::BF16
     } else {
         DType::F32
     };
-    // Use the original device and dtype
+    
+    // Use the selected device and dtype
     let vb = unsafe { VarBuilder::from_mmaped_safetensors(&filenames, dtype, &device)? };
     let model = match args.which {
         Which::Base2B

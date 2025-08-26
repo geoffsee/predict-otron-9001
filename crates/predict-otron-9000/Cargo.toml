@@ -3,6 +3,10 @@ name = "predict-otron-9000"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "predict-otron-9000"
+path = "src/main.rs"
+
 [dependencies]
 # Axum web framework
 axum = "0.8.4"
