@@ -117,6 +117,16 @@ impl TextGeneration {
         }
     }
     
+    // Reset method to clear state between requests
+    pub fn reset_state(&mut self) {
+        // Reset the primary device flag so we try the primary device first for each new request
+        if !self.device.is_cpu() {
+            self.try_primary_device = true;
+        }
+        // Clear the penalty cache to avoid stale cached values from previous requests
+        self.penalty_cache.clear();
+    }
+
     // Helper method to apply repeat penalty with caching for optimization
     pub fn apply_cached_repeat_penalty(
         &mut self,

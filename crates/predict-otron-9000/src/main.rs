@@ -53,10 +53,11 @@ async fn main() {
     pipeline_args.model_id = "google/gemma-3-1b-it".to_string();
     pipeline_args.which = Which::InstructV3_1B;
     
-    let text_generation = build_pipeline(pipeline_args);
+    let text_generation = build_pipeline(pipeline_args.clone());
     let app_state = AppState {
         text_generation: std::sync::Arc::new(tokio::sync::Mutex::new(text_generation)),
         model_id: "google/gemma-3-1b-it".to_string(),
+        build_args: pipeline_args,
     };
     
     // Get the inference router directly from the inference engine
