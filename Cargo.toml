@@ -3,8 +3,7 @@ members = [
     "crates/predict-otron-9000",
     "crates/inference-engine",
     "crates/embeddings-engine",
-    "crates/leptos-chat",
-    "crates/legacy-inference-engine"
+    "crates/leptos-chat"
 ]
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"
