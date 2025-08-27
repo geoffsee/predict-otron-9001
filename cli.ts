@@ -15,12 +15,14 @@ Simple CLI tool for testing the local OpenAI-compatible API server.
 Options:
   --model <model>     Model to use (default: ${DEFAULT_MODEL})
   --prompt <prompt>   The prompt to send (can also be provided as positional argument)
+  --list-models       List all available models from the server
   --help              Show this help message
 
 Examples:
   ./cli.ts "What is the capital of France?"
   ./cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
   ./cli.ts --prompt "Who was the 16th president of the United States?"
+  ./cli.ts --list-models
 
 The server should be running at http://localhost:8080
 Start it with: ./run_server.sh
@@ -37,6 +39,9 @@ const { values, positionals } = parseArgs({
             type: 'string',
         },
         help: {
+            type: 'boolean',
+        },
+        'list-models': {
             type: 'boolean',
         },
     },
@@ -67,11 +72,52 @@ async function requestLocalOpenAI(model: string, userPrompt: string) {
     }
 }
 
+async function listModels() {
+    const openai = new OpenAI({
+        baseURL: "http://localhost:8080/v1",
+        apiKey: "not used",
+    });
+    try {
+        const models = await openai.models.list();
+        console.log(`[INFO] Available models from http://localhost:8080/v1:`);
+        console.log("---");
+        
+        if (models.data && models.data.length > 0) {
+            models.data.forEach((model, index) => {
+                console.log(`${index + 1}. ${model.id}`);
+                console.log(`   Owner: ${model.owned_by}`);
+                console.log(`   Created: ${new Date(model.created * 1000).toISOString()}`);
+                console.log("");
+            });
+            console.log(`Total: ${models.data.length} models available`);
+        } else {
+            console.log("No models found.");
+        }
+        
+    } catch (e) {
+        console.error("[ERROR] Failed to fetch models from local OpenAI server:", e.message);
+        console.error("[HINT] Make sure the server is running at http://localhost:8080");
+        console.error("[HINT] Start it with: ./run_server.sh");
+        throw e;
+    }
+}
+
 async function main() {
     // Show help if requested
     if (values.help) {
         printHelp();
         process.exit(0);
+    }
+
+    // List models if requested
+    if (values['list-models']) {
+        try {
+            await listModels();
+            process.exit(0);
+        } catch (error) {
+            console.error("\n[ERROR] Failed to list models:", error.message);
+            process.exit(1);
+        }
     }
 
     // Get the prompt from either --prompt flag or positional argument

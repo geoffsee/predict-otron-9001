@@ -192,3 +192,25 @@ pub struct Usage {
     pub completion_tokens: usize,
     pub total_tokens: usize,
 }
+
+/// Model object representing an available model
+#[derive(Debug, Serialize, ToSchema)]
+pub struct Model {
+    /// The model identifier
+    pub id: String,
+    /// The object type, always "model"
+    pub object: String,
+    /// Unix timestamp of when the model was created
+    pub created: u64,
+    /// The organization that owns the model
+    pub owned_by: String,
+}
+
+/// Response for listing available models
+#[derive(Debug, Serialize, ToSchema)]
+pub struct ModelListResponse {
+    /// The object type, always "list"
+    pub object: String,
+    /// Array of available models
+    pub data: Vec<Model>,
+}
