@@ -32,7 +32,7 @@ leptos-app = { path = "../leptos-app", features = ["ssr"] }
 
 mime_guess = "2.0.5"
 
-# generates docker compose configuration
+
 [package.metadata.compose]
 name = "predict-otron-9000"
 image = "ghcr.io/geoffsee/predict-otron-9000:latest"

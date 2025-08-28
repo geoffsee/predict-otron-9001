@@ -26,7 +26,7 @@ async-openai = "0.28.3"
 once_cell = "1.19.0"
 
 
-# generates docker compose configuration
+
 [package.metadata.compose]
 image = "ghcr.io/geoffsee/embeddings-service:latest"
 port = 8080

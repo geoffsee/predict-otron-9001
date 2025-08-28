@@ -84,7 +84,7 @@ anyhow = { version = "1", features = ["backtrace"] }
 bindgen_cuda = { version = "0.1.1", optional = true }
 
 
-# generates docker compose configuration
+
 [package.metadata.compose]
 image = "ghcr.io/geoffsee/inference-engine:latest"
 port = 8080
