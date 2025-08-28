@@ -11,11 +11,7 @@ The `SERVER_CONFIG` environment variable accepts a JSON configuration with the f
 
 ```json
 {
-  "serverMode": "Standalone",
-  "services": {
-    "inference_url": "http://inference-service:8080",
-    "embeddings_url": "http://embeddings-service:8080"
-  }
+  "serverMode": "Standalone"
 }
 ```
 
