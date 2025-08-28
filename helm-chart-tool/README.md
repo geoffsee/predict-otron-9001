@@ -137,7 +137,7 @@ Parsing workspace at: ..
 Output directory: ../generated-helm-chart
 Chart name: predict-otron-9000
 Found 4 services:
-  - leptos-chat: ghcr.io/geoffsee/leptos-chat:latest (port 8788)
+  - leptos-app: ghcr.io/geoffsee/leptos-app:latest (port 8788)
   - inference-engine: ghcr.io/geoffsee/inference-service:latest (port 8080)
   - embeddings-engine: ghcr.io/geoffsee/embeddings-service:latest (port 8080)
   - predict-otron-9000: ghcr.io/geoffsee/predict-otron-9000:latest (port 8080)

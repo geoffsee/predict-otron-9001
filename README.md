@@ -26,7 +26,16 @@ Aliens, in a native executable.
 - **`predict-otron-9000`**: Main unified server that combines both engines
 - **`embeddings-engine`**: Handles text embeddings using FastEmbed with the Nomic Embed Text v1.5 model
 - **`inference-engine`**: Provides text generation capabilities using Gemma models (1B, 2B, 7B, 9B variants) via Candle transformers
-- **`leptos-chat`**: WebAssembly-based chat interface built with Leptos framework for browser-based interaction with the inference engine
+- **`leptos-app`**: WebAssembly-based chat interface built with Leptos framework for browser-based interaction with the inference engine
+
+## Further Reading
+
+### Documentation
+
+- [Architecture](docs/ARCHITECTURE.md) - Detailed server configuration options and deployment modes
+- [Server Configuration Guide](docs/SERVER_CONFIG.md) - Detailed server configuration options and deployment modes
+- [Testing Documentation](docs/TESTING.md) - Comprehensive testing guide including unit, integration and e2e tests
+- [Performance Benchmarking](docs/BENCHMARKING.md) - Instructions for running and analyzing performance benchmarks
 
 ## Installation
 
@@ -262,8 +271,8 @@ The project includes a WebAssembly-based chat interface built with the Leptos fr
 ### Building the Chat Interface
 
 ```shell
-# Navigate to the leptos-chat crate
-cd crates/leptos-chat
+# Navigate to the leptos-app crate
+cd crates/leptos-app
 
 # Build the WebAssembly package
 cargo build --target wasm32-unknown-unknown
