@@ -74,9 +74,27 @@ Environment variables for server configuration:
 
 - `SERVER_HOST`: Server bind address (default: `0.0.0.0`)
 - `SERVER_PORT`: Server port (default: `8080`)
+- `SERVER_CONFIG`: JSON configuration for deployment mode (default: Local mode)
 - `RUST_LOG`: Logging level configuration
 
-Example:
+#### Deployment Modes
+
+The server supports two deployment modes controlled by `SERVER_CONFIG`:
+
+**Local Mode (default)**: Runs inference and embeddings services locally
+```shell
+./run_server.sh
+```
+
+**HighAvailability Mode**: Proxies requests to external services
+```shell
+export SERVER_CONFIG='{"serverMode": "HighAvailability"}'
+./run_server.sh
+```
+
+See [docs/SERVER_CONFIG.md](docs/SERVER_CONFIG.md) for complete configuration options, Docker Compose, and Kubernetes examples.
+
+#### Basic Configuration Example:
 ```shell
 export SERVER_PORT=3000
 export RUST_LOG=debug

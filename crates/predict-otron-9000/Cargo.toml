@@ -18,6 +18,8 @@ serde_json = "1.0.140"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1.7.0", features = ["v4"] }
+reqwest = { version = "0.12", features = ["json"] }
+rust-embed = "8.7.2"
 
 # Dependencies for embeddings functionality
 embeddings-engine = { path = "../embeddings-engine" }
@@ -37,3 +39,4 @@ port = 8080
 image = "ghcr.io/geoffsee/predict-otron-9000:latest"
 replicas = 1
 port = 8080
+env = { SERVER_CONFIG = "" }
