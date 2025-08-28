@@ -20,19 +20,6 @@ A Rust-based inference engine for running large language models locally. This to
   - macOS: Metal support
   - Linux/Windows: CUDA support (requires appropriate drivers)
 
-### Building from Source
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/seemueller-io/open-web-agent-rs.git
-   cd open-web-agent-rs
-   ```
-
-2. Build the local inference engine:
-   ```bash
-   cargo build -p inference-engine --release
-   ```
-
 ## Usage
 
 ### CLI Mode

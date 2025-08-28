@@ -14,19 +14,19 @@ Aliens, in a native executable.
 ## Features
 - **OpenAI Compatible**: API endpoints match OpenAI's format for easy integration
 - **Text Embeddings**: Generate high-quality text embeddings using the Nomic Embed Text v1.5 model
-- **Text Generation**: Chat completions with OpenAI-compatible API (simplified implementation)
+- **Text Generation**: Chat completions with OpenAI-compatible API using Gemma models (1B, 2B, 7B, 9B variants including base and instruction-tuned models)
 - **Performance Optimized**: Implements efficient caching and singleton patterns for improved throughput and reduced latency
 - **Performance Benchmarking**: Includes tools for measuring performance and generating HTML reports
-- **Web Chat Interface**: A Leptos-based WebAssembly chat interface for interacting with the inference engine
+- **Web Chat Interface**: A Leptos-based WebAssembly (WASM) chat interface for browser-based interaction with the inference engine
 
 ## Architecture
 
 ### Core Components
 
 - **`predict-otron-9000`**: Main unified server that combines both engines
-- **`embeddings-engine`**: Handles text embeddings using FastEmbed and Nomic models
-- **`inference-engine`**: Provides text generation capabilities (with modular design for various models)
-- **`leptos-chat`**: WebAssembly-based chat interface built with Leptos framework for interacting with the inference engine
+- **`embeddings-engine`**: Handles text embeddings using FastEmbed with the Nomic Embed Text v1.5 model
+- **`inference-engine`**: Provides text generation capabilities using Gemma models (1B, 2B, 7B, 9B variants) via Candle transformers
+- **`leptos-chat`**: WebAssembly-based chat interface built with Leptos framework for browser-based interaction with the inference engine
 
 ## Installation
 
@@ -44,8 +44,14 @@ cd predict-otron-9000
 # 2. Build the project
 cargo build --release
 
-# 3. Run the server
+# 3. Run the unified server
 ./run_server.sh
+
+# Alternative: Build and run individual components
+# For inference engine only:
+cargo run -p inference-engine --release -- --server --port 3777
+# For embeddings engine only:
+cargo run -p embeddings-engine --release
 ```
 
 ## Usage

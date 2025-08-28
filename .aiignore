@@ -1,0 +1,7 @@
+.idea/
+.fastembed_cache/
+target/
+/.output.txt
+/*.iml
+dist
+node_modules/
