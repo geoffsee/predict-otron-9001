@@ -51,11 +51,14 @@ features = [
     "js", # Enable JavaScript RNG for WASM targets
 ]
 
+# generates docker compose configuration
+[package.metadata.compose]
+image = "ghcr.io/geoffsee/leptos-chat:latest"
+port = 8788
+
+
+# generates kubernetes manifests
 [package.metadata.kube]
 image = "ghcr.io/geoffsee/leptos-chat:latest"
 replicas = 1
 port = 8788
-resources.cpu = "500m"
-resources.memory = "256Mi"
-#ingress.host = "my-service.example.com"
-#env = { RUST_LOG = "info", DATABASE_URL = "postgres://..." }

@@ -2,6 +2,7 @@
 .fastembed_cache/
 target/
 /.output.txt
-/*.iml
+j**i?/
+*.iml
 dist
 node_modules/
