@@ -1,8 +1,78 @@
+# IDE and editor files
 .idea/
-.fastembed_cache/
-target/
-/.output.txt
-.j**i?/
+.vscode/
 *.iml
-dist
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Rust build artifacts
+target/
+Cargo.lock
+*.pdb
+
+# Node.js artifacts
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.npm
+.yarn-integrity
+
+# Web frontend build outputs
+dist/
+.trunk/
+
+# ML model and embedding caches
+.fastembed_cache/
+.hf-cache/
+.cache/
+
+# Generated Helm charts
+generated-helm-chart/
+helm-chart/
+*.tgz
+
+# Log files
+*.log
+logs/
+.output.txt
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# OS generated files
+Thumbs.db
+.DS_Store?
+ehthumbs.db
+
+# JetBrains AI Assistant files
+.j**i?/
+
+# Test outputs and coverage
+coverage/
+.nyc_output/
+junit.xml
+
+# Docker artifacts
+.dockerignore.bak
+
+# Python artifacts (if any Python tooling is used)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv/
+
+# Backup files
+*.bak
+*.backup
+*~
