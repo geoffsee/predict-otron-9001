@@ -2,7 +2,7 @@
 
 The predict-otron-9000 server supports two deployment modes controlled by the `SERVER_CONFIG` environment variable:
 
-1. **Local Mode** (default): Runs inference and embeddings services locally within the main server process
+1. **Standalone Mode** (default): Runs inference and embeddings services locally within the main server process
 2. **HighAvailability Mode**: Proxies requests to external inference and embeddings services
 
 ## Configuration Format
@@ -11,7 +11,7 @@ The `SERVER_CONFIG` environment variable accepts a JSON configuration with the f
 
 ```json
 {
-  "serverMode": "Local",
+  "serverMode": "Standalone",
   "services": {
     "inference_url": "http://inference-service:8080",
     "embeddings_url": "http://embeddings-service:8080"
@@ -35,17 +35,17 @@ or
 - `serverMode`: Either `"Local"` or `"HighAvailability"`
 - `services`: Optional object containing service URLs (uses defaults if not provided)
 
-## Local Mode (Default)
+## Standalone Mode (Default)
 
 If `SERVER_CONFIG` is not set or contains invalid JSON, the server defaults to Local mode.
 
 ### Example: Explicit Local Mode
 ```bash
-export SERVER_CONFIG='{"serverMode": "Local"}'
+export SERVER_CONFIG='{"serverMode": "Standalone"}'
 ./run_server.sh
 ```
 
-In Local mode:
+In Standalone mode:
 - Inference requests are handled by the embedded inference engine
 - Embeddings requests are handled by the embedded embeddings engine
 - No external services are required
