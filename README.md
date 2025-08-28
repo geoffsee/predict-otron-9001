@@ -3,10 +3,6 @@
 _Warning: Do NOT use this in production unless you are cool like that._
 
 <p align="center">
-  <img src="https://github.com/geoffsee/predict-otron-9000/blob/master/predict-otron-9000.png?raw=true" width="250" />
-</p>
-
-<p align="center">
 Aliens, in a native executable.
 </p>
 
