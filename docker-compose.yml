@@ -25,22 +25,6 @@ services:
       retries: 10
       start_period: 10s
 
-  # Web frontend - Leptos WASM chat interface
-  leptos-chat:
-    build:
-      context: crates/leptos-chat
-      dockerfile: Dockerfile
-    ports:
-      - "8788:8788"
-    depends_on:
-      predict-otron-9000:
-        condition: service_healthy
-    networks:
-      - predict-otron-network
-    environment:
-      # Configure API endpoint for the frontend to connect to backend
-      - API_BASE_URL=http://predict-otron-9000:8080
-
 volumes:
   # Persistent storage for Hugging Face model cache
   hf-cache:

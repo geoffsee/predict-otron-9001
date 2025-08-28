@@ -1,7 +1,0 @@
-[build]
-# Set the RUSTFLAGS environment variable for getrandom's WebAssembly support
-rustflags = ["--cfg", "getrandom_backend=\"wasm_js\""]
-
-[serve]
-# Use the same port as in the run.sh script
-port = 8788

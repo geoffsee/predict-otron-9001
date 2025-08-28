@@ -173,7 +173,7 @@ The server logs the selected mode on startup:
 
 **Local Mode:**
 ```
-INFO predict_otron_9000: Running in Local mode - using embedded services
+INFO predict_otron_9000: Running in Standalone mode
 ```
 
 **HighAvailability Mode:**

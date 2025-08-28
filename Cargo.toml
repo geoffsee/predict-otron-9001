@@ -3,7 +3,7 @@ members = [
     "crates/predict-otron-9000",
     "crates/inference-engine",
     "crates/embeddings-engine",
-    "crates/leptos-chat"
+    "crates/leptos-app"
 ]
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"
@@ -12,6 +12,5 @@ resolver = "2"
 
 [[workspace.metadata.leptos]]
 # project name
-name = "leptos-project"
-bin-package = "leptos-chat"
-lib-package = "leptos-chat"
+bin-package = "leptos-app"
+lib-package = "leptos-app"

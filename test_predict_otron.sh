@@ -59,11 +59,11 @@ echo "[INFO] Server is ready!"
 
 # Run first CLI request
 echo "[INFO] Running first CLI request - listing models..."
-bun run cli.ts --list-models
+./cli.ts --list-models
 
 echo ""
 echo "[INFO] Running second CLI request - chat completion..."
-bun run cli.ts "What is 2+2?"
+./cli.ts "What is 2+2?"
 
 echo ""
 echo "[INFO] Both CLI requests completed successfully!"

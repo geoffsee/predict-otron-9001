@@ -89,7 +89,7 @@ impl ServerConfig {
                 }
             }
             Err(_) => {
-                tracing::info!("SERVER_CONFIG not set, using default Local mode");
+                tracing::info!("SERVER_CONFIG not set, Standalone mode active");
                 ServerConfig::default()
             }
         }
