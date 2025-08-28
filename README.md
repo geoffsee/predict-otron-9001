@@ -1,114 +1,204 @@
 # predict-otron-9000
 
-_Warning: Do NOT use this in production unless you are cool like that._
+A comprehensive multi-service AI platform built around local LLM inference, embeddings, and web interfaces.
 
 <p align="center">
-Aliens, in a native executable.
+Powerful local AI inference with OpenAI-compatible APIs
 </p>
 
+## Project Overview
+
+The predict-otron-9000 is a flexible AI platform that provides:
+
+- **Local LLM Inference**: Run Gemma models locally with CPU or GPU acceleration
+- **Embeddings Generation**: Create text embeddings with FastEmbed
+- **Web Interface**: Interact with models through a Leptos WASM chat interface
+- **TypeScript CLI**: Command-line client for testing and automation
+- **Production Deployment**: Docker and Kubernetes deployment options
+
+The system supports both CPU and GPU acceleration (CUDA/Metal), with intelligent fallbacks and platform-specific optimizations.
 
 ## Features
+
 - **OpenAI Compatible**: API endpoints match OpenAI's format for easy integration
-- **Text Embeddings**: Generate high-quality text embeddings using the Nomic Embed Text v1.5 model
-- **Text Generation**: Chat completions with OpenAI-compatible API using Gemma models (1B, 2B, 7B, 9B variants including base and instruction-tuned models)
-- **Performance Optimized**: Implements efficient caching and singleton patterns for improved throughput and reduced latency
-- **Performance Benchmarking**: Includes tools for measuring performance and generating HTML reports
-- **Web Chat Interface**: A Leptos-based WebAssembly (WASM) chat interface for browser-based interaction with the inference engine
+- **Text Embeddings**: Generate high-quality text embeddings using FastEmbed
+- **Text Generation**: Chat completions with OpenAI-compatible API using Gemma models (1B, 2B, 7B variants including instruction-tuned models)
+- **Performance Optimized**: Efficient caching and platform-specific optimizations for improved throughput
+- **Web Chat Interface**: Leptos-based WebAssembly (WASM) chat interface for browser-based interaction
+- **Flexible Deployment**: Run as monolithic service or microservices architecture
 
-## Architecture
+## Architecture Overview
 
-### Core Components
+### Workspace Structure
 
-- **`predict-otron-9000`**: Main unified server that combines both engines
-- **`embeddings-engine`**: Handles text embeddings using FastEmbed with the Nomic Embed Text v1.5 model
-- **`inference-engine`**: Provides text generation capabilities using Gemma models (1B, 2B, 7B, 9B variants) via Candle transformers
-- **`leptos-app`**: WebAssembly-based chat interface built with Leptos framework for browser-based interaction with the inference engine
+The project uses a 4-crate Rust workspace plus TypeScript components:
 
-## Further Reading
-
-### Documentation
-
-- [Architecture](docs/ARCHITECTURE.md) - Detailed server configuration options and deployment modes
-- [Server Configuration Guide](docs/SERVER_CONFIG.md) - Detailed server configuration options and deployment modes
-- [Testing Documentation](docs/TESTING.md) - Comprehensive testing guide including unit, integration and e2e tests
-- [Performance Benchmarking](docs/BENCHMARKING.md) - Instructions for running and analyzing performance benchmarks
-
-## Installation
-
-### Prerequisites
-
-- Rust 1.70+ with 2024 edition support
-- Cargo package manager
-
-### Build from Source
-```shell
-# 1. Clone the repository
-git clone <repository-url>
-cd predict-otron-9000
-
-# 2. Build the project
-cargo build --release
-
-# 3. Run the unified server
-./run_server.sh
-
-# Alternative: Build and run individual components
-# For inference engine only:
-cargo run -p inference-engine --release -- --server --port 3777
-# For embeddings engine only:
-cargo run -p embeddings-engine --release
+```
+crates/
+├── predict-otron-9000/     # Main orchestration server (Rust 2024)
+├── inference-engine/       # Gemma inference via Candle (Rust 2021) 
+├── embeddings-engine/      # FastEmbed embeddings service (Rust 2024)
+└── leptos-app/             # WASM web frontend (Rust 2021)
+cli.ts                      # TypeScript/Bun CLI client
 ```
 
-## Usage
+### Service Architecture
 
-### Starting the Server
+- **Main Server** (port 8080): Orchestrates inference and embeddings services
+- **Embeddings Service** (port 8080): Standalone FastEmbed service with OpenAI API compatibility  
+- **Web Frontend** (port 8788): Leptos WASM chat interface served by Trunk
+- **CLI Client**: TypeScript/Bun client for testing and automation
 
-The server can be started using the provided script or directly with cargo:
+### Deployment Modes
 
-```shell
-# Using the provided script
-./run_server.sh
+The architecture supports multiple deployment patterns:
 
-# Or directly with cargo
-cargo run --bin predict-otron-9000
+1. **Development Mode**: All services run in a single process for simplified development
+2. **Docker Monolithic**: Single containerized service handling all functionality
+3. **Kubernetes Microservices**: Separate services for horizontal scalability and fault isolation
+
+## Build and Configuration
+
+### Dependencies and Environment Prerequisites
+
+#### Rust Toolchain
+- **Editions**: Mixed - main services use Rust 2024, some components use 2021
+- **Recommended**: Latest stable Rust toolchain: `rustup default stable && rustup update`
+- **Developer tools**:
+  - `rustup component add rustfmt` (formatting)
+  - `rustup component add clippy` (linting)
+
+#### Node.js/Bun Toolchain  
+- **Bun**: Required for TypeScript CLI client: `curl -fsSL https://bun.sh/install | bash`
+- **Node.js**: Alternative to Bun, supports OpenAI SDK v5.16.0+
+
+#### WASM Frontend Toolchain
+- **Trunk**: Required for Leptos frontend builds: `cargo install trunk`
+- **wasm-pack**: `cargo install wasm-pack`
+- **WASM target**: `rustup target add wasm32-unknown-unknown`
+
+#### ML Framework Dependencies
+- **Candle**: Version 0.9.1 with conditional compilation:
+  - macOS: Metal support with CPU fallback for stability
+  - Linux: CUDA support with CPU fallback
+  - CPU-only: Supported on all platforms
+- **FastEmbed**: Version 4.x for embeddings functionality
+
+#### Hugging Face Access
+- **Required for**: Gemma model downloads (gated models)
+- **Authentication**: 
+  - CLI: `pip install -U "huggingface_hub[cli]" && huggingface-cli login`
+  - Environment: `export HF_TOKEN="<your_token>"`
+- **Cache management**: `export HF_HOME="$PWD/.hf-cache"` (optional, keeps cache local)
+- **Model access**: Accept Gemma model licenses on Hugging Face before use
+
+#### Platform-Specific Notes
+- **macOS**: Metal acceleration available but routed to CPU for Gemma v3 stability
+- **Linux**: CUDA support with BF16 precision on GPU, F32 on CPU  
+- **Conditional compilation**: Handled automatically per platform in Cargo.toml
+
+### Build Procedures
+
+#### Full Workspace Build
+```bash
+cargo build --workspace --release
 ```
 
-### Configuration
+#### Individual Services
 
-Environment variables for server configuration:
-
-- `SERVER_HOST`: Server bind address (default: `0.0.0.0`)
-- `SERVER_PORT`: Server port (default: `8080`)
-- `SERVER_CONFIG`: JSON configuration for deployment mode (default: Local mode)
-- `RUST_LOG`: Logging level configuration
-
-#### Deployment Modes
-
-The server supports two deployment modes controlled by `SERVER_CONFIG`:
-
-**Local Mode (default)**: Runs inference and embeddings services locally
-```shell
-./run_server.sh
+**Main Server:**
+```bash
+cargo build --bin predict-otron-9000 --release
 ```
 
-**HighAvailability Mode**: Proxies requests to external services
-```shell
-export SERVER_CONFIG='{"serverMode": "HighAvailability"}'
-./run_server.sh
+**Inference Engine CLI:**
+```bash  
+cargo build --bin cli --package inference-engine --release
 ```
 
-See [docs/SERVER_CONFIG.md](docs/SERVER_CONFIG.md) for complete configuration options, Docker Compose, and Kubernetes examples.
-
-#### Basic Configuration Example:
-```shell
-export SERVER_PORT=3000
-export RUST_LOG=debug
-./run_server.sh
+**Embeddings Service:**
+```bash
+cargo build --bin embeddings-engine --release
 ```
 
-## API Endpoints
+**Web Frontend:**
+```bash
+cd crates/leptos-app
+trunk build --release
+```
 
-### Text Embeddings
+### Running Services
+
+#### Main Server (Port 8080)
+```bash
+./scripts/run_server.sh
+```
+- Respects `SERVER_PORT` (default: 8080) and `RUST_LOG` (default: info)
+- Boots with default model: `gemma-3-1b-it`
+- Requires HF authentication for first-time model download
+
+#### Web Frontend (Port 8788)  
+```bash
+cd crates/leptos-app
+./run.sh
+```
+- Serves Leptos WASM frontend on port 8788
+- Sets required RUSTFLAGS for WebAssembly getrandom support
+- Auto-reloads during development
+
+#### TypeScript CLI Client
+```bash
+# List available models
+bun run cli.ts --list-models
+
+# Chat completion
+bun run cli.ts "What is the capital of France?"
+
+# With specific model
+bun run cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
+
+# Show help
+bun run cli.ts --help
+```
+
+## API Usage
+
+### Health Checks and Model Inventory
+```bash
+curl -s http://localhost:8080/v1/models | jq
+```
+
+### Chat Completions
+
+**Non-streaming:**
+```bash
+curl -s http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "default",
+    "messages": [{"role": "user", "content": "Say hello"}],
+    "max_tokens": 64
+  }' | jq
+```
+
+**Streaming (Server-Sent Events):**
+```bash
+curl -N http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "default", 
+    "messages": [{"role": "user", "content": "Tell a short joke"}],
+    "stream": true,
+    "max_tokens": 64
+  }'
+```
+
+**Model Specification:**
+- Use `"model": "default"` for configured model
+- Or specify exact model ID: `"model": "gemma-3-1b-it"`
+- Requests with unknown models will be rejected
+
+### Embeddings API
 
 Generate text embeddings compatible with OpenAI's embeddings API.
 
@@ -141,142 +231,259 @@ Generate text embeddings compatible with OpenAI's embeddings API.
 }
 ```
 
-### Chat Completions
+### Web Frontend
+- Navigate to `http://localhost:8788` 
+- Real-time chat interface with the inference server
+- Supports streaming responses and conversation history
 
-Generate chat completions (simplified implementation).
+## Testing
 
-**Endpoint**: `POST /v1/chat/completions`
+### Test Categories
 
-**Request Body**:
-```json
-{
-  "model": "gemma-2b-it",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Hello, how are you?"
-    }
-  ]
-}
+1. **Offline/fast tests**: No network or model downloads required
+2. **Online tests**: Require HF authentication and model downloads  
+3. **Integration tests**: Multi-service end-to-end testing
+
+### Quick Start: Offline Tests
+
+**Prompt formatting tests:**
+```bash
+cargo test --workspace build_gemma_prompt
 ```
 
-**Response**:
-```json
-{
-  "id": "chatcmpl-...",
-  "object": "chat.completion",
-  "created": 1699123456,
-  "model": "gemma-2b-it",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "Hello! This is the unified predict-otron-9000 server..."
-      },
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 10,
-    "completion_tokens": 35,
-    "total_tokens": 45
-  }
-}
+**Model metadata tests:**
+```bash  
+cargo test --workspace which_
 ```
 
-### Health Check
+These verify core functionality without requiring HF access.
 
-**Endpoint**: `GET /`
+### Full Test Suite (Requires HF)
 
-Returns a simple "Hello, World!" message to verify the server is running.
+**Prerequisites:**
+1. Accept Gemma model licenses on Hugging Face
+2. Authenticate: `huggingface-cli login` or `export HF_TOKEN=...`
+3. Optional: `export HF_HOME="$PWD/.hf-cache"`
+
+**Run all tests:**
+```bash
+cargo test --workspace
+```
+
+### Integration Testing
+
+**End-to-end test script:**
+```bash
+./test.sh
+```
+
+This script:
+- Starts the server in background with proper cleanup
+- Waits for server readiness via health checks  
+- Runs CLI tests for model listing and chat completion
+- Includes 60-second timeout and process management
 
 ## Development
 
-### Project Structure
+### Code Style and Tooling
 
-```
-predict-otron-9000/
-├── Cargo.toml                 # Workspace configuration
-├── README.md                  # This file
-├── run_server.sh             # Server startup script
-└── crates/
-    ├── predict-otron-9000/   # Main unified server
-    │   ├── Cargo.toml
-    │   └── src/
-    │       └── main.rs
-    ├── embeddings-engine/    # Text embeddings functionality
-    │   ├── Cargo.toml
-    │   └── src/
-    │       ├── lib.rs
-    │       └── main.rs
-    └── inference-engine/     # Text generation functionality
-        ├── Cargo.toml
-        ├── src/
-        │   ├── lib.rs
-        │   ├── cli.rs
-        │   ├── server.rs
-        │   ├── model.rs
-        │   ├── text_generation.rs
-        │   ├── token_output_stream.rs
-        │   ├── utilities_lib.rs
-        │   └── openai_types.rs
-        └── tests/
+**Formatting:**
+```bash
+cargo fmt --all
 ```
 
-### Running Tests
-
-```shell
-# Run all tests
-cargo test
-
-# Run tests for a specific crate
-cargo test -p embeddings-engine
-cargo test -p inference-engine
+**Linting:**
+```bash  
+cargo clippy --workspace --all-targets -- -D warnings
 ```
 
-For comprehensive testing documentation, including unit tests, integration tests, end-to-end tests, and performance testing, please refer to the [TESTING.md](docs/TESTING.md) document.
+**Logging:**
+- Server uses `tracing` framework
+- Control via `RUST_LOG` (e.g., `RUST_LOG=debug ./scripts/run_server.sh`)
 
-For performance benchmarking with HTML report generation, see the [BENCHMARKING.md](BENCHMARKING.md) guide.
+### Adding Tests
 
-### Adding Features
+**For fast, offline tests:**
+- Exercise pure logic without tokenizers/models
+- Use descriptive names for easy filtering: `cargo test specific_test_name`
+- Example patterns: prompt construction, metadata selection, tensor math
 
-1. **Embeddings Engine**: Modify `crates/embeddings-engine/src/lib.rs` to add new embedding models or functionality
-2. **Inference Engine**: The inference engine has a modular structure - add new models in the `model.rs` module
-3. **Unified Server**: Update `crates/predict-otron-9000/src/main.rs` to integrate new capabilities
+**Process:**
+1. Add test to existing module
+2. Run filtered: `cargo test --workspace new_test_name` 
+3. Verify in full suite: `cargo test --workspace`
 
-## Logging and Debugging
+### OpenAI API Compatibility
 
-The application uses structured logging with tracing. Log levels can be controlled via the `RUST_LOG` environment variable:
+**Features:**
+- POST `/v1/chat/completions` with streaming and non-streaming
+- Single configured model enforcement (use `"model": "default"`)
+- Gemma-style prompt formatting with `<start_of_turn>`/`<end_of_turn>` markers
+- System prompt injection into first user turn
+- Repetition detection and early stopping in streaming mode
 
-```shell
-# Debug level logging
-export RUST_LOG=debug
+**CORS:**
+- Fully open by default (`tower-http CorsLayer::Any`)
+- Adjust for production deployment
 
-# Trace level for detailed embeddings debugging
-export RUST_LOG=trace
+### Architecture Details
 
-# Module-specific logging
-export RUST_LOG=predict_otron_9000=debug,embeddings_engine=trace
+**Device Selection:**
+- Automatic device/dtype selection
+- CPU: Universal fallback (F32 precision)
+- CUDA: BF16 precision on compatible GPUs  
+- Metal: Available but routed to CPU for Gemma v3 stability
+
+**Model Loading:**
+- Single-file `model.safetensors` preferred
+- Falls back to index resolution via `utilities_lib::hub_load_safetensors`
+- HF cache populated on first access
+
+**Multi-Service Design:**
+- Main server orchestrates inference and embeddings
+- Services can run independently for horizontal scaling
+- Docker/Kubernetes metadata included for deployment
+
+## Deployment
+
+### Docker Support
+
+All services include Docker metadata in `Cargo.toml`:
+
+**Main Server:**
+- Image: `ghcr.io/geoffsee/predict-otron-9000:latest`
+- Port: 8080
+
+**Inference Service:**
+- Image: `ghcr.io/geoffsee/inference-service:latest`  
+- Port: 8080
+
+**Embeddings Service:**
+- Image: `ghcr.io/geoffsee/embeddings-service:latest`
+- Port: 8080
+
+**Web Frontend:**
+- Image: `ghcr.io/geoffsee/leptos-app:latest`
+- Port: 8788
+
+**Docker Compose:**
+```bash
+# Start all services
+docker-compose up -d
+
+# Check logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
 ```
 
-### Usage
+### Kubernetes Support
 
-The chat interface connects to the inference engine API and provides a user-friendly way to interact with the AI models. To use:
+All services include Kubernetes manifest metadata:
+- Single replica deployments by default
+- Service-specific port configurations
+- Ready for horizontal pod autoscaling
 
-1. Start the predict-otron-9000 server
-2. Open the chat interface in a web browser
-3. Enter messages and receive AI-generated responses
+For Kubernetes deployment details, see the [ARCHITECTURE.md](docs/ARCHITECTURE.md) document.
 
-The interface supports:
-- Real-time messaging with the AI
-- Visual indication of when the AI is generating a response
-- Message history display
+### Build Artifacts
 
-## Limitations
+**Ignored by Git:**
+- `target/` (Rust build artifacts)
+- `node_modules/` (Node.js dependencies)  
+- `dist/` (Frontend build output)
+- `.fastembed_cache/` (FastEmbed model cache)
+- `.hf-cache/` (Hugging Face cache, if configured)
 
-- **Inference Engine**: Currently provides a simplified implementation for chat completions. Full model loading and text generation capabilities from the inference-engine crate are not yet integrated into the unified server.
-- **Model Support**: Embeddings are limited to the Nomic Embed Text v1.5 model.
+## Common Issues and Solutions
+
+### Authentication/Licensing
+**Symptom:** 404 or permission errors fetching models  
+**Solution:** 
+1. Accept Gemma model licenses on Hugging Face
+2. Authenticate with `huggingface-cli login` or `HF_TOKEN`
+3. Verify token with `huggingface-cli whoami`
+
+### GPU Issues  
+**Symptom:** OOM errors or GPU panics  
+**Solution:**
+1. Test on CPU first: ensure `CUDA_VISIBLE_DEVICES=""` if needed
+2. Check available VRAM vs model requirements
+3. Consider using smaller model variants
+
+### Model Mismatch Errors
+**Symptom:** 400 errors with `type=model_mismatch`  
+**Solution:**
+- Use `"model": "default"` in API requests
+- Or match configured model ID exactly: `"model": "gemma-3-1b-it"`
+
+### Frontend Build Issues
+**Symptom:** WASM compilation failures  
+**Solution:**
+1. Install required targets: `rustup target add wasm32-unknown-unknown`
+2. Install trunk: `cargo install trunk`
+3. Check RUSTFLAGS in leptos-app/run.sh
+
+### Network/Timeout Issues
+**Symptom:** First-time model downloads timing out  
+**Solution:**
+1. Ensure stable internet connection
+2. Consider using local HF cache: `export HF_HOME="$PWD/.hf-cache"`
+3. Download models manually with `huggingface-cli`
+
+## Minimal End-to-End Verification
+
+**Build verification:**
+```bash
+cargo build --workspace --release
+```
+
+**Fast offline tests:**
+```bash
+cargo test --workspace build_gemma_prompt
+cargo test --workspace which_
+```
+
+**Service startup:**
+```bash
+./scripts/run_server.sh &
+sleep 10  # Wait for server startup
+curl -s http://localhost:8080/v1/models | jq
+```
+
+**CLI client test:**
+```bash
+bun run cli.ts "What is 2+2?"
+```
+
+**Web frontend:**
+```bash
+cd crates/leptos-app && ./run.sh &
+# Navigate to http://localhost:8788
+```
+
+**Integration test:**
+```bash
+./test.sh
+```
+
+**Cleanup:**
+```bash
+pkill -f "predict-otron-9000"
+pkill -f "trunk"
+```
+
+For networked tests and full functionality, ensure Hugging Face authentication is configured as described above.
+
+## Further Reading
+
+### Documentation
+
+- [Architecture](docs/ARCHITECTURE.md) - Detailed architectural diagrams and deployment patterns
+- [Server Configuration Guide](docs/SERVER_CONFIG.md) - Detailed server configuration options
+- [Testing Documentation](docs/TESTING.md) - Comprehensive testing guide
+- [Performance Benchmarking](docs/BENCHMARKING.md) - Instructions for benchmarking
 
 ## Contributing
 
@@ -286,45 +493,4 @@ The interface supports:
 4. Ensure all tests pass: `cargo test`
 5. Submit a pull request
 
-
-## Quick cURL verification for Chat Endpoints
-
-Start the unified server:
-
-```
-./run_server.sh
-```
-
-Non-streaming chat completion (expects JSON response):
-
-```
-curl -X POST http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gemma-3-1b-it",
-    "messages": [
-      {"role": "user", "content": "Who was the 16th president of the United States?"}
-    ],
-    "max_tokens": 128,
-    "stream": false
-  }'
-```
-
-Streaming chat completion via Server-Sent Events (SSE):
-
-```
-curl -N -X POST http://localhost:8080/v1/chat/completions/stream \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gemma-3-1b-it",
-    "messages": [
-      {"role": "user", "content": "Who was the 16th president of the United States?"}
-    ],
-    "max_tokens": 128,
-    "stream": true
-  }'
-```
-
-Helper scripts are also available:
-- scripts/curl_chat.sh
-- scripts/curl_chat_stream.sh
+_Warning: Do NOT use this in production unless you are cool like that._
