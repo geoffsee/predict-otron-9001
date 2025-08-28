@@ -25,10 +25,6 @@ static EMBEDDING_MODEL: Lazy<TextEmbedding> = Lazy::new(|| {
     model
 });
 
-pub async fn root() -> &'static str {
-    "Hello, World!"
-}
-
 pub async fn embeddings_create(
     Json(payload): Json<CreateEmbeddingRequest>,
 ) -> ResponseJson<serde_json::Value> {

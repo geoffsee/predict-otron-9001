@@ -5,3 +5,5 @@ target/
 /*.iml
 dist
 node_modules/
+prompt.md
+todo

@@ -13,9 +13,6 @@ use tracing;
 const DEFAULT_SERVER_HOST: &str = "127.0.0.1";
 const DEFAULT_SERVER_PORT: &str = "8080";
 
-async fn root() -> &'static str {
-    "Hello, World!"
-}
 
 async fn embeddings_create(
     Json(payload): Json<CreateEmbeddingRequest>,
@@ -161,24 +158,6 @@ mod tests {
 	use axum::body::Body;
 	use axum::http::StatusCode;
 	use tower::ServiceExt;
-
-	#[tokio::test]
-    async fn test_root() {
-        let app = create_app();
-        let response = app
-            .oneshot(
-                axum::http::Request::builder()
-                    .uri("/")
-                    .body(Body::empty())
-                    .unwrap(),
-            )
-            .await
-            .unwrap();
-
-        assert_eq!(response.status(), StatusCode::OK);
-        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
-        assert_eq!(&body[..], b"Hello, World!");
-    }
 
     #[tokio::test]
     async fn test_embeddings_create() {
