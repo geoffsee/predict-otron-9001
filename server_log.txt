@@ -1,0 +1,39 @@
+   Compiling inference-engine v0.1.0 (/Users/williamseemueller/workspace/seemueller-io/predict-otron-9000/crates/inference-engine)
+warning: unused import: `Config as Config1`
+ --> crates/inference-engine/src/model.rs:2:42
+  |
+2 | use candle_transformers::models::gemma::{Config as Config1, Model as Model1};
+  |                                          ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `Config as Config2`
+ --> crates/inference-engine/src/model.rs:3:43
+  |
+3 | use candle_transformers::models::gemma2::{Config as Config2, Model as Model2};
+  |                                           ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Config as Config3`
+ --> crates/inference-engine/src/model.rs:4:43
+  |
+4 | use candle_transformers::models::gemma3::{Config as Config3, Model as Model3};
+  |                                           ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `self`
+  --> crates/inference-engine/src/server.rs:10:28
+   |
+10 | use futures_util::stream::{self, Stream};
+   |                            ^^^^
+
+warning: `inference-engine` (lib) generated 4 warnings (run `cargo fix --lib -p inference-engine` to apply 4 suggestions)
+   Compiling predict-otron-9000 v0.1.0 (/Users/williamseemueller/workspace/seemueller-io/predict-otron-9000/crates/predict-otron-9000)
+    Finished `release` profile [optimized] target(s) in 4.24s
+     Running `target/release/predict-otron-9000`
+avx: false, neon: true, simd128: false, f16c: false
+[2m2025-08-28T00:28:26.075133Z[0m [32m INFO[0m [2mhf_hub[0m[2m:[0m Using token file found "/Users/williamseemueller/.cache/huggingface/token"    
+retrieved the files in 557.625µs
+[2m2025-08-28T00:28:26.075815Z[0m [32m INFO[0m [2mpredict_otron_9000::middleware::metrics[0m[2m:[0m Performance metrics summary:
+
+thread 'main' panicked at crates/predict-otron-9000/src/main.rs:91:61:
+called `Result::unwrap()` on an `Err` value: Os { code: 48, kind: AddrInUse, message: "Address already in use" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

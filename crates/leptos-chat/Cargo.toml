@@ -50,3 +50,12 @@ features = [
     "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
     "js", # Enable JavaScript RNG for WASM targets
 ]
+
+[package.metadata.kube]
+image = "ghcr.io/geoffsee/leptos-chat:latest"
+replicas = 1
+port = 8788
+resources.cpu = "500m"
+resources.memory = "256Mi"
+#ingress.host = "my-service.example.com"
+#env = { RUST_LOG = "info", DATABASE_URL = "postgres://..." }

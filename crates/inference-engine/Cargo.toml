@@ -44,6 +44,7 @@ axum = { version = "0.8.4", features = ["json"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.6", features = ["cors"] }
 tokio = { version = "1.43.0", features = ["full"] }
+tokio-stream = { version = "0.1.16", features = ["sync"] }
 either = { version = "1.9.0", features = ["serde"] }
 utoipa = { version = "4.2.0", features = ["axum_extras"] }
 uuid = { version = "1.7.0", features = ["v4"] }
@@ -81,3 +82,12 @@ tokio = "1.43.0"
 [build-dependencies]
 anyhow = { version = "1", features = ["backtrace"] }
 bindgen_cuda = { version = "0.1.1", optional = true }
+
+[package.metadata.kube]
+image = "ghcr.io/geoffsee/inference-service:latest"
+replicas = 1
+port = 8080
+resources.cpu = "500m"
+resources.memory = "256Mi"
+#ingress.host = "my-service.example.com"
+#env = { RUST_LOG = "info", DATABASE_URL = "postgres://..." }

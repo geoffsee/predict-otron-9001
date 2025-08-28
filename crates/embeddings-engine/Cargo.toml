@@ -24,3 +24,12 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 rand = "0.8.5"
 async-openai = "0.28.3"
 once_cell = "1.19.0"
+
+[package.metadata.kube]
+image = "ghcr.io/geoffsee/embeddings-service:latest"
+replicas = 1
+port = 8080
+resources.cpu = "500m"
+resources.memory = "256Mi"
+#ingress.host = "my-service.example.com"
+#env = { RUST_LOG = "info", DATABASE_URL = "postgres://..." }

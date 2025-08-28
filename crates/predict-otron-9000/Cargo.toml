@@ -24,3 +24,13 @@ embeddings-engine = { path = "../embeddings-engine" }
 
 # Dependencies for inference functionality
 inference-engine = { path = "../inference-engine" }
+
+
+[package.metadata.kube]
+image = "ghcr.io/geoffsee/predict-otron-9000:latest"
+replicas = 1
+port = 8080
+resources.cpu = "500m"
+resources.memory = "256Mi"
+#ingress.host = "my-service.example.com"
+#env = { RUST_LOG = "info", DATABASE_URL = "postgres://..." }

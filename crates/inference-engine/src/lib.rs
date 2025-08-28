@@ -17,7 +17,7 @@ use std::env;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 /// Server configuration constants
-pub const DEFAULT_SERVER_HOST: &str = "0.0.0.0";
+pub const DEFAULT_SERVER_HOST: &str = "127.0.0.1";
 pub const DEFAULT_SERVER_PORT: &str = "8080";
 
 /// Get server configuration from environment variables with defaults

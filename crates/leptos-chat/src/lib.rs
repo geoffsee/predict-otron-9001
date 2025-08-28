@@ -15,7 +15,7 @@ use async_openai_wasm::{
     Client,
 };
 use async_openai_wasm::config::OpenAIConfig;
-use async_openai_wasm::types::{ChatCompletionResponseStream, Model};
+use async_openai_wasm::types::{ChatCompletionResponseStream, Model, Role, FinishReason};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Message {
@@ -127,7 +127,7 @@ async fn fetch_available_models() -> Result<Vec<OpenAIModel>, String> {
 }
 
 async fn send_chat_request(chat_request: ChatRequest) -> ChatCompletionResponseStream {
-    let config = OpenAIConfig::new().with_api_base("http://localhost:8080".to_string());
+    let config = OpenAIConfig::new().with_api_base("http://localhost:8080/v1".to_string());
     let client = Client::with_config(config);
 
     let mut typed_chat = async_openai_wasm::types::CreateChatCompletionRequest {
@@ -205,7 +205,7 @@ async fn send_chat_request(chat_request: ChatRequest) -> ChatCompletionResponseS
 //     Err("leptos-chat chat request only supported on wasm32 target".to_string())
 // }
 
-const DEFAULT_MODEL: &str = "gemma-2b-it";
+const DEFAULT_MODEL: &str = "default";
 
 #[component]
 fn ChatInterface() -> impl IntoView {
@@ -272,11 +272,37 @@ fn ChatInterface() -> impl IntoView {
             let history_count = messages.with_untracked(|msgs| {
                 let count = msgs.len();
                 for msg in msgs.iter() {
-                    let message = ChatCompletionRequestUserMessageArgs::default()
-                        .content(msg.content.clone())
-                        .build()
-                        .expect("failed to build message");
-                    chat_messages.push(message.into());
+                        match msg.role.as_str() {
+                        "user" => {
+                            let message = ChatCompletionRequestUserMessageArgs::default()
+                                .content(msg.content.clone())
+                                .build()
+                                .expect("failed to build user message");
+                            chat_messages.push(message.into());
+                        }
+                        "assistant" => {
+                            let message = ChatCompletionRequestAssistantMessageArgs::default()
+                                .content(msg.content.clone())
+                                .build()
+                                .expect("failed to build assistant message");
+                            chat_messages.push(message.into());
+                        }
+                        "system" => {
+                            let message = ChatCompletionRequestSystemMessageArgs::default()
+                                .content(msg.content.clone())
+                                .build()
+                                .expect("failed to build system message");
+                            chat_messages.push(message.into());
+                        }
+                        _ => {
+                            // Default to user message for unknown roles
+                            let message = ChatCompletionRequestUserMessageArgs::default()
+                                .content(msg.content.clone())
+                                .build()
+                                .expect("failed to build default message");
+                            chat_messages.push(message.into());
+                        }
+                    }
                 }
                 count
             });
@@ -319,51 +345,69 @@ fn ChatInterface() -> impl IntoView {
                 Ok(mut stream) => {
                     log::info!("[DEBUG_LOG] send_message: Successfully created stream, starting to receive response");
                     
-                    // Insert a placeholder assistant message to append into
-                    let assistant_id = Uuid::new_v4().to_string();
-                    set_messages.update(|msgs| {
-                        msgs.push_back(Message {
-                            id: assistant_id.clone(),
-                            role: "assistant".to_string(),
-                            content: String::new(),
-                            timestamp: Date::now(),
-                        });
-                    });
-
+                    // Defer creating assistant message until we receive role=assistant from the stream
+                    let mut assistant_created = false;
+                    let mut content_appended = false;
                     let mut chunks_received = 0;
-                    // Stream loop: append deltas to the last message
+                    // Stream loop: handle deltas and finish events
                     while let Some(next) = stream.next().await {
                         match next {
                             Ok(chunk) => {
                                 chunks_received += 1;
-                                // Try to pull out the content delta in a tolerant way.
-                                // async-openai 0.28.x stream chunk usually looks like:
-                                // choices[0].delta.content: Option<String>
-                                let mut delta_txt = String::new();
-
                                 if let Some(choice) = chunk.choices.get(0) {
-                                    // Newer message API may expose different shapes; try common ones
-                                    // 1) Simple string content delta
-                                    if let Some(content) = &choice.delta.content {
-                                        delta_txt.push_str(content);
-                                    }
-
-                                    // 2) Some providers pack text under .delta.role/.delta.<other>
-                                    //    If nothing extracted, ignore quietly.
-
-                                    // If a finish_reason arrives, we could stop early,
-                                    // but usually the stream naturally ends.
-                                }
-
-                                if !delta_txt.is_empty() {
-                                    set_messages.update(|msgs| {
-                                        if let Some(last) = msgs.back_mut() {
-                                            if last.role == "assistant" {
-                                                last.content.push_str(&delta_txt);
-                                                last.timestamp = Date::now();
+                                    // 1) Create assistant message when role arrives
+                                    if !assistant_created {
+                                        if let Some(role) = &choice.delta.role {
+                                            if role == &Role::Assistant {
+                                                assistant_created = true;
+                                                let assistant_id = Uuid::new_v4().to_string();
+                                                set_messages.update(|msgs| {
+                                                    msgs.push_back(Message {
+                                                        id: assistant_id,
+                                                        role: "assistant".to_string(),
+                                                        content: String::new(),
+                                                        timestamp: Date::now(),
+                                                    });
+                                                });
                                             }
                                         }
-                                    });
+                                    }
+
+                                    // 2) Append content tokens when provided
+                                    if let Some(content) = &choice.delta.content {
+                                        if !content.is_empty() {
+                                            // If content arrives before role, create assistant message now
+                                            if !assistant_created {
+                                                assistant_created = true;
+                                                let assistant_id = Uuid::new_v4().to_string();
+                                                set_messages.update(|msgs| {
+                                                    msgs.push_back(Message {
+                                                        id: assistant_id,
+                                                        role: "assistant".to_string(),
+                                                        content: String::new(),
+                                                        timestamp: Date::now(),
+                                                    });
+                                                });
+                                            }
+                                            content_appended = true;
+                                            set_messages.update(|msgs| {
+                                                if let Some(last) = msgs.back_mut() {
+                                                    if last.role == "assistant" {
+                                                        last.content.push_str(content);
+                                                        last.timestamp = Date::now();
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+
+                                    // 3) Stop on finish_reason=="stop" (mirrors [DONE])
+                                    if let Some(reason) = &choice.finish_reason {
+                                        if reason == &FinishReason::Stop {
+                                            log::info!("[DEBUG_LOG] send_message: Received finish_reason=stop after {} chunks", chunks_received);
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                             Err(e) => {
@@ -381,6 +425,21 @@ fn ChatInterface() -> impl IntoView {
                             }
                         }
                     }
+
+                    // Cleanup: If we created an assistant message but no content ever arrived, remove the empty message
+                    if assistant_created && !content_appended {
+                        set_messages.update(|msgs| {
+                            let should_pop = msgs
+                                .back()
+                                .map(|m| m.role == "assistant" && m.content.is_empty())
+                                .unwrap_or(false);
+                            if should_pop {
+                                log::info!("[DEBUG_LOG] send_message: Removing empty assistant message (no content received)");
+                                msgs.pop_back();
+                            }
+                        });
+                    }
+
                     log::info!("[DEBUG_LOG] send_message: Stream completed successfully, received {} chunks", chunks_received);
                 }
                 Err(e) => {

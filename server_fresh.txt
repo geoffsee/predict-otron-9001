@@ -1,0 +1,277 @@
+warning: unused import: `Config as Config1`
+ --> crates/inference-engine/src/model.rs:2:42
+  |
+2 | use candle_transformers::models::gemma::{Config as Config1, Model as Model1};
+  |                                          ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `Config as Config2`
+ --> crates/inference-engine/src/model.rs:3:43
+  |
+3 | use candle_transformers::models::gemma2::{Config as Config2, Model as Model2};
+  |                                           ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Config as Config3`
+ --> crates/inference-engine/src/model.rs:4:43
+  |
+4 | use candle_transformers::models::gemma3::{Config as Config3, Model as Model3};
+  |                                           ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `self`
+  --> crates/inference-engine/src/server.rs:10:28
+   |
+10 | use futures_util::stream::{self, Stream};
+   |                            ^^^^
+
+warning: `inference-engine` (lib) generated 4 warnings (run `cargo fix --lib -p inference-engine` to apply 4 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.13s
+     Running `target/release/predict-otron-9000`
+avx: false, neon: true, simd128: false, f16c: false
+[2m2025-08-28T00:34:39.293635Z[0m [32m INFO[0m [2mhf_hub[0m[2m:[0m Using token file found "/Users/williamseemueller/.cache/huggingface/token"    
+retrieved the files in 295.458µs
+[2m2025-08-28T00:34:39.294536Z[0m [32m INFO[0m [2mpredict_otron_9000::middleware::metrics[0m[2m:[0m Performance metrics summary:
+[2m2025-08-28T00:34:40.507474Z[0m [32m INFO[0m [2mpredict_otron_9000[0m[2m:[0m Unified predict-otron-9000 server listening on 127.0.0.1:8080
+[2m2025-08-28T00:34:40.507503Z[0m [32m INFO[0m [2mpredict_otron_9000[0m[2m:[0m Performance metrics tracking enabled - summary logs every 60 seconds
+[2m2025-08-28T00:34:40.507508Z[0m [32m INFO[0m [2mpredict_otron_9000[0m[2m:[0m Available endpoints:
+[2m2025-08-28T00:34:40.507512Z[0m [32m INFO[0m [2mpredict_otron_9000[0m[2m:[0m   GET  / - Root endpoint from embeddings-engine
+[2m2025-08-28T00:34:40.507515Z[0m [32m INFO[0m [2mpredict_otron_9000[0m[2m:[0m   POST /v1/embeddings - Text embeddings
+[2m2025-08-28T00:34:40.507517Z[0m [32m INFO[0m [2mpredict_otron_9000[0m[2m:[0m   POST /v1/chat/completions - Chat completions
+[2m2025-08-28T00:34:52.313606Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mPOST [3muri[0m[2m=[0m/v1/chat/completions [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mtower_http::trace::on_request[0m[2m:[0m started processing request
+[2m2025-08-28T00:34:52.313671Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mPOST [3muri[0m[2m=[0m/v1/chat/completions [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2minference_engine::server[0m[2m:[0m Formatted prompt: <start_of_turn>user
+You are a helpful assistant who responds thoughtfully and concisely.
+
+Write a paragraph about dogs<end_of_turn>
+<start_of_turn>model
+
+[2m2025-08-28T00:34:52.313693Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mPOST [3muri[0m[2m=[0m/v1/chat/completions [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mpredict_otron_9000::middleware::metrics[0m[2m:[0m POST /v1/chat/completions 200 OK - 0 ms
+[2m2025-08-28T00:34:52.313709Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mPOST [3muri[0m[2m=[0m/v1/chat/completions [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mtower_http::trace::on_response[0m[2m:[0m finished processing request [3mlatency[0m[2m=[0m0 ms [3mstatus[0m[2m=[0m200
+[2m2025-08-28T00:34:52.313763Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Cleared penalty cache for new generation (streaming mode)
+[2m2025-08-28T00:34:52.313985Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Tokenization completed in 217.04µs
+[2m2025-08-28T00:34:52.313990Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Input tokens: 26
+[2m2025-08-28T00:34:52.340937Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Using special generation approach for gemma-2/gemma-3 models (streaming)
+[2m2025-08-28T00:34:52.602691Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: 'Dogs'
+[2m2025-08-28T00:34:52.602718Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: 'Dogs'
+[2m2025-08-28T00:34:52.769918Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' have'
+[2m2025-08-28T00:34:52.769949Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' have'
+[2m2025-08-28T00:34:52.905947Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' captivated'
+[2m2025-08-28T00:34:52.905977Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' captivated'
+[2m2025-08-28T00:34:53.040888Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' humans'
+[2m2025-08-28T00:34:53.040921Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' humans'
+[2m2025-08-28T00:34:53.177116Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' for'
+[2m2025-08-28T00:34:53.177145Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' for'
+[2m2025-08-28T00:34:53.313887Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' millennia'
+[2m2025-08-28T00:34:53.313920Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' millennia'
+[2m2025-08-28T00:34:53.444031Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ','
+[2m2025-08-28T00:34:53.444060Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ','
+[2m2025-08-28T00:34:53.571919Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' evolving'
+[2m2025-08-28T00:34:53.571951Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' evolving'
+[2m2025-08-28T00:34:53.699811Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' from'
+[2m2025-08-28T00:34:53.699852Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' from'
+[2m2025-08-28T00:34:53.828082Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' wolves'
+[2m2025-08-28T00:34:53.828111Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' wolves'
+[2m2025-08-28T00:34:53.957276Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' to'
+[2m2025-08-28T00:34:53.957313Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' to'
+[2m2025-08-28T00:34:54.093248Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' beloved'
+[2m2025-08-28T00:34:54.093284Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' beloved'
+[2m2025-08-28T00:34:54.228357Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' companions'
+[2m2025-08-28T00:34:54.228385Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' companions'
+[2m2025-08-28T00:34:54.356315Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' offering'
+[2m2025-08-28T00:34:54.356349Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' offering'
+[2m2025-08-28T00:34:54.484051Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' unwavering'
+[2m2025-08-28T00:34:54.484085Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' unwavering'
+[2m2025-08-28T00:34:54.613022Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' loyalty'
+[2m2025-08-28T00:34:54.613061Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' loyalty'
+[2m2025-08-28T00:34:54.742024Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' alongside'
+[2m2025-08-28T00:34:54.742043Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' alongside'
+[2m2025-08-28T00:34:54.869804Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' boundless'
+[2m2025-08-28T00:34:54.869829Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' boundless'
+[2m2025-08-28T00:34:54.998140Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' affection'
+[2m2025-08-28T00:34:54.998165Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' affection'
+[2m2025-08-28T00:34:55.126560Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' –'
+[2m2025-08-28T00:34:55.126582Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' –'
+[2m2025-08-28T00:34:55.255214Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' often'
+[2m2025-08-28T00:34:55.255232Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' often'
+[2m2025-08-28T00:34:55.383529Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' fueled'
+[2m2025-08-28T00:34:55.383551Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' fueled'
+[2m2025-08-28T00:34:55.511437Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' by'
+[2m2025-08-28T00:34:55.511456Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' by'
+[2m2025-08-28T00:34:55.639748Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' their'
+[2m2025-08-28T00:34:55.639768Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' their'
+[2m2025-08-28T00:34:55.767723Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' incredible'
+[2m2025-08-28T00:34:55.767741Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' incredible'
+[2m2025-08-28T00:34:55.895796Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' ability'
+[2m2025-08-28T00:34:55.895817Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' ability'
+[2m2025-08-28T00:34:56.025191Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' at'
+[2m2025-08-28T00:34:56.025219Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' at'
+[2m2025-08-28T00:34:56.153604Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' understanding'
+[2m2025-08-28T00:34:56.153626Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' understanding'
+[2m2025-08-28T00:34:56.282571Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' human'
+[2m2025-08-28T00:34:56.282590Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' human'
+[2m2025-08-28T00:34:56.411224Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' emotion'
+[2m2025-08-28T00:34:56.411247Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' emotion'
+[2m2025-08-28T00:34:56.540028Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' through'
+[2m2025-08-28T00:34:56.540050Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' through'
+[2m2025-08-28T00:34:56.668612Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' subtle'
+[2m2025-08-28T00:34:56.668630Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' subtle'
+[2m2025-08-28T00:34:56.797698Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' cues'
+[2m2025-08-28T00:34:56.797716Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' cues'
+[2m2025-08-28T00:34:56.927032Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: '!'
+[2m2025-08-28T00:34:56.927054Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: '!'
+[2m2025-08-28T00:34:57.054903Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' Beyond'
+[2m2025-08-28T00:34:57.054922Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' Beyond'
+[2m2025-08-28T00:34:57.183890Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' companionship'
+[2m2025-08-28T00:34:57.183914Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' companionship'
+[2m2025-08-28T00:34:57.313258Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' they'
+[2m2025-08-28T00:34:57.313278Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' they'
+[2m2025-08-28T00:34:57.441875Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' provide'
+[2m2025-08-28T00:34:57.441897Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' provide'
+[2m2025-08-28T00:34:57.569839Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' crucial'
+[2m2025-08-28T00:34:57.569864Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' crucial'
+[2m2025-08-28T00:34:57.700161Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' assistance'
+[2m2025-08-28T00:34:57.700184Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' assistance'
+[2m2025-08-28T00:34:57.828427Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' with'
+[2m2025-08-28T00:34:57.828453Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' with'
+[2m2025-08-28T00:34:57.957703Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' tasks'
+[2m2025-08-28T00:34:57.957727Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' tasks'
+[2m2025-08-28T00:34:58.085556Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' like'
+[2m2025-08-28T00:34:58.085579Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' like'
+[2m2025-08-28T00:34:58.213727Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' guarding'
+[2m2025-08-28T00:34:58.213750Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' guarding'
+[2m2025-08-28T00:34:58.342674Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' property'
+[2m2025-08-28T00:34:58.342696Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' property'
+[2m2025-08-28T00:34:58.474992Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' or'
+[2m2025-08-28T00:34:58.475011Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' or'
+[2m2025-08-28T00:34:58.603613Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' assisting'
+[2m2025-08-28T00:34:58.603636Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' assisting'
+[2m2025-08-28T00:34:58.732292Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' individuals'
+[2m2025-08-28T00:34:58.732316Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' individuals'
+[2m2025-08-28T00:34:58.861810Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' who'
+[2m2025-08-28T00:34:58.861847Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' who'
+[2m2025-08-28T00:34:58.989748Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' are'
+[2m2025-08-28T00:34:58.989765Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' are'
+[2m2025-08-28T00:34:59.118088Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' blind'
+[2m2025-08-28T00:34:59.118105Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' blind'
+[2m2025-08-28T00:34:59.246722Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' and'
+[2m2025-08-28T00:34:59.246746Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' and'
+[2m2025-08-28T00:34:59.375090Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' deaf'
+[2m2025-08-28T00:34:59.375119Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' deaf'
+[2m2025-08-28T00:34:59.503369Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: '.'
+[2m2025-08-28T00:34:59.503398Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: '.'
+[2m2025-08-28T00:34:59.632352Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' Their'
+[2m2025-08-28T00:34:59.632374Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' Their'
+[2m2025-08-28T00:34:59.760656Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' diverse'
+[2m2025-08-28T00:34:59.760675Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' diverse'
+[2m2025-08-28T00:34:59.889274Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' breeds'
+[2m2025-08-28T00:34:59.889293Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' breeds'
+[2m2025-08-28T00:35:00.018013Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' reflect'
+[2m2025-08-28T00:35:00.018043Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' reflect'
+[2m2025-08-28T00:35:00.146874Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' a'
+[2m2025-08-28T00:35:00.146903Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' a'
+[2m2025-08-28T00:35:00.275232Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' fascinating'
+[2m2025-08-28T00:35:00.275257Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' fascinating'
+[2m2025-08-28T00:35:00.403452Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' range'
+[2m2025-08-28T00:35:00.403472Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' range'
+[2m2025-08-28T00:35:00.535110Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' of'
+[2m2025-08-28T00:35:00.535133Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' of'
+[2m2025-08-28T00:35:00.663383Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' personalities'
+[2m2025-08-28T00:35:00.663402Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' personalities'
+[2m2025-08-28T00:35:00.792808Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' shaped'
+[2m2025-08-28T00:35:00.792836Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' shaped'
+[2m2025-08-28T00:35:00.921350Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' over'
+[2m2025-08-28T00:35:00.921378Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' over'
+[2m2025-08-28T00:35:01.049207Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' countless'
+[2m2025-08-28T00:35:01.049228Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' countless'
+[2m2025-08-28T00:35:01.178030Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' generations'
+[2m2025-08-28T00:35:01.178058Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' generations'
+[2m2025-08-28T00:35:01.306740Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: '،'
+[2m2025-08-28T00:35:01.306762Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: '،'
+[2m2025-08-28T00:35:01.434552Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' making'
+[2m2025-08-28T00:35:01.434573Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' making'
+[2m2025-08-28T00:35:01.562628Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' them'
+[2m2025-08-28T00:35:01.562647Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' them'
+[2m2025-08-28T00:35:01.690509Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:01.690530Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:01.819330Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' unique'
+[2m2025-08-28T00:35:01.819351Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' unique'
+[2m2025-08-28T00:35:01.947700Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' members'
+[2m2025-08-28T00:35:01.947720Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' members'
+[2m2025-08-28T00:35:02.076045Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' within'
+[2m2025-08-28T00:35:02.076071Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' within'
+[2m2025-08-28T00:35:02.204721Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' our'
+[2m2025-08-28T00:35:02.204743Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' our'
+[2m2025-08-28T00:35:02.333483Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' families'
+[2m2025-08-28T00:35:02.333506Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' families'
+[2m2025-08-28T00:35:02.461905Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ','
+[2m2025-08-28T00:35:02.461926Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ','
+[2m2025-08-28T00:35:02.589686Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' enriching'
+[2m2025-08-28T00:35:02.589710Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' enriching'
+[2m2025-08-28T00:35:02.718589Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' lives'
+[2m2025-08-28T00:35:02.718618Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' lives'
+[2m2025-08-28T00:35:02.846614Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' in'
+[2m2025-08-28T00:35:02.846635Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' in'
+[2m2025-08-28T00:35:02.976008Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' profound'
+[2m2025-08-28T00:35:02.976028Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' profound'
+[2m2025-08-28T00:35:03.107573Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' ways'
+[2m2025-08-28T00:35:03.107594Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' ways'
+[2m2025-08-28T00:35:03.236069Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' regardless'
+[2m2025-08-28T00:35:03.236088Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' regardless'
+[2m2025-08-28T00:35:03.364469Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' if'
+[2m2025-08-28T00:35:03.364492Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' if'
+[2m2025-08-28T00:35:03.492669Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' we'
+[2m2025-08-28T00:35:03.492690Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' we'
+[2m2025-08-28T00:35:03.621905Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' choose'
+[2m2025-08-28T00:35:03.621927Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' choose'
+[2m2025-08-28T00:35:03.754038Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' to'
+[2m2025-08-28T00:35:03.754059Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' to'
+[2m2025-08-28T00:35:03.883044Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' own'
+[2m2025-08-28T00:35:03.883066Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' own'
+[2m2025-08-28T00:35:04.010685Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' one'
+[2m2025-08-28T00:35:04.010703Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' one'
+[2m2025-08-28T00:35:04.139584Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' ourselves'
+[2m2025-08-28T00:35:04.139609Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' ourselves'
+[2m2025-08-28T00:35:04.269128Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:04.269144Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:04.398132Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:04.398151Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:04.527627Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:04.527654Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:04.657885Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:04.657914Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:04.788586Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:04.788607Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:04.918153Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:04.918179Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:05.048431Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:05.048460Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:05.178022Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:05.178055Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:05.308805Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:05.308833Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:05.438091Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Streaming token: ' truly'
+[2m2025-08-28T00:35:05.438113Z[0m [34mDEBUG[0m [2minference_engine::server[0m[2m:[0m Sending chunk with content: ' truly'
+[2m2025-08-28T00:35:05.561745Z[0m [32m INFO[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Text generation completed in 13.22s
+[2m2025-08-28T00:35:05.561767Z[0m [32m INFO[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Tokens generated: 100
+[2m2025-08-28T00:35:05.561770Z[0m [32m INFO[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Generation speed: 7.56 tokens/second
+[2m2025-08-28T00:35:05.561772Z[0m [32m INFO[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Average time per token: 129.65ms
+[2m2025-08-28T00:35:05.561774Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming  - Forward pass: 124.98ms (96.4%)
+[2m2025-08-28T00:35:05.561776Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming  - Repeat penalty: 74.02µs (0.1%)
+[2m2025-08-28T00:35:05.561778Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming  - Sampling: 5.85ms (4.5%)
+[2m2025-08-28T00:35:05.561779Z[0m [32m INFO[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Total request time: 13.25s
+[2m2025-08-28T00:35:05.561781Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming  - Tokenization: 217.04µs (0.0%)
+[2m2025-08-28T00:35:05.561782Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming  - Generation: 13.22s (99.8%)
+[2m2025-08-28T00:35:05.561783Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming  - Final decoding: 8.17µs (0.0%)
+[2m2025-08-28T00:35:30.845607Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mPOST [3muri[0m[2m=[0m/v1/chat/completions [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mtower_http::trace::on_request[0m[2m:[0m started processing request
+[2m2025-08-28T00:35:30.845670Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mPOST [3muri[0m[2m=[0m/v1/chat/completions [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2minference_engine::server[0m[2m:[0m Formatted prompt: <start_of_turn>user
+You are a helpful assistant who responds thoughtfully and concisely.
+
+Write a paragraph about cats<end_of_turn>
+<start_of_turn>model
+
+[2m2025-08-28T00:35:30.845684Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mPOST [3muri[0m[2m=[0m/v1/chat/completions [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mpredict_otron_9000::middleware::metrics[0m[2m:[0m POST /v1/chat/completions 200 OK - 0 ms
+[2m2025-08-28T00:35:30.845691Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mPOST [3muri[0m[2m=[0m/v1/chat/completions [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mtower_http::trace::on_response[0m[2m:[0m finished processing request [3mlatency[0m[2m=[0m0 ms [3mstatus[0m[2m=[0m200
+[2m2025-08-28T00:35:30.845719Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Cleared penalty cache for new generation (streaming mode)
+[2m2025-08-28T00:35:30.845789Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Tokenization completed in 65.50µs
+[2m2025-08-28T00:35:30.845794Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Streaming Input tokens: 26
+[2m2025-08-28T00:35:30.871195Z[0m [34mDEBUG[0m [2minference_engine::text_generation[0m[2m:[0m Using special generation approach for gemma-2/gemma-3 models (streaming)
+./run_server.sh: line 7: 30566 Killed: 9               cargo run --bin predict-otron-9000 --release

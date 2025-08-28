@@ -10,7 +10,7 @@ use std::env;
 use tower_http::trace::TraceLayer;
 use tracing;
 
-const DEFAULT_SERVER_HOST: &str = "0.0.0.0";
+const DEFAULT_SERVER_HOST: &str = "127.0.0.1";
 const DEFAULT_SERVER_PORT: &str = "8080";
 
 async fn root() -> &'static str {
