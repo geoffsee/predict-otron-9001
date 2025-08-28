@@ -1,0 +1,54 @@
+services:
+  # Main orchestration server - handles inference and embeddings
+  predict-otron-9000:
+    build:
+      context: .
+      dockerfile: crates/predict-otron-9000/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - RUST_LOG=${RUST_LOG:-info}
+      - HF_TOKEN=${HF_TOKEN}
+      - HF_HOME=/app/.hf-cache
+    volumes:
+      # Mount HF cache to persist downloaded models
+      - hf-cache:/app/.hf-cache
+      # Mount FastEmbed cache for embeddings
+      - fastembed-cache:/app/.fastembed_cache
+    networks:
+      - predict-otron-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 5s
+      timeout: 1s
+      retries: 10
+      start_period: 10s
+
+  # Web frontend - Leptos WASM chat interface
+  leptos-chat:
+    build:
+      context: crates/leptos-chat
+      dockerfile: Dockerfile
+    ports:
+      - "8788:8788"
+    depends_on:
+      predict-otron-9000:
+        condition: service_healthy
+    networks:
+      - predict-otron-network
+    environment:
+      # Configure API endpoint for the frontend to connect to backend
+      - API_BASE_URL=http://predict-otron-9000:8080
+
+volumes:
+  # Persistent storage for Hugging Face model cache
+  hf-cache:
+    driver: local
+  # Persistent storage for FastEmbed model cache
+  fastembed-cache:
+    driver: local
+
+networks:
+  predict-otron-network:
+    driver: bridge
