@@ -107,10 +107,6 @@ graph LR
             A --> C[Embedded Embeddings Engine]
             A --> D[SSR Leptos Frontend]
         end
-        
-        subgraph "Separate Frontend - Port 8788"
-            E[Trunk Dev Server<br/>Hot Reload: 3001]
-        end
     end
     
     subgraph "External Clients"
