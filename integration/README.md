@@ -1,0 +1,1 @@
+This package enables testing of a live instance of predict-otron-9000 using the openai node sdk directly.

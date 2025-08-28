@@ -1,5 +1,8 @@
 {
   "name": "@predict-otron-9000/ingeration",
+  "scripts": {
+    "test": "bun test"
+  },
   "dependencies": {
     "openai": "^5.16.0"
   }

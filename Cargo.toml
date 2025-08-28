@@ -3,12 +3,11 @@ members = [
     "crates/predict-otron-9000",
     "crates/inference-engine",
     "crates/embeddings-engine",
-    "crates/leptos-app"
+    "crates/leptos-app",
+    "crates/helm-chart-tool"
 ]
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"
-
-
 
 [[workspace.metadata.leptos]]
 # project name

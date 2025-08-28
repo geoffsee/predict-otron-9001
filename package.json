@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "openai": "^5.16.0"
+  },
+  "scripts": {
+    "cli": "./scripts/cli.ts"
   }
 }

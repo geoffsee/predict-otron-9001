@@ -264,23 +264,6 @@ export RUST_LOG=trace
 export RUST_LOG=predict_otron_9000=debug,embeddings_engine=trace
 ```
 
-## Chat Interface
-
-The project includes a WebAssembly-based chat interface built with the Leptos framework.
-
-### Building the Chat Interface
-
-```shell
-# Navigate to the leptos-app crate
-cd crates/leptos-app
-
-# Build the WebAssembly package
-cargo build --target wasm32-unknown-unknown
-
-# For development with trunk (if installed)
-trunk serve
-```
-
 ### Usage
 
 The chat interface connects to the inference engine API and provides a user-friendly way to interact with the AI models. To use:
@@ -298,8 +281,6 @@ The interface supports:
 
 - **Inference Engine**: Currently provides a simplified implementation for chat completions. Full model loading and text generation capabilities from the inference-engine crate are not yet integrated into the unified server.
 - **Model Support**: Embeddings are limited to the Nomic Embed Text v1.5 model.
-- **Scalability**: Single-threaded model loading may impact performance under heavy load.
-- **Chat Interface**: The WebAssembly chat interface requires compilation to a static site before deployment.
 
 ## Contributing
 
