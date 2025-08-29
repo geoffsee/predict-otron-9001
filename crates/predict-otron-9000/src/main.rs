@@ -67,18 +67,7 @@ async fn main() {
         let embeddings_router = embeddings_engine::create_embeddings_router();
 
         // Create AppState with correct model configuration
-        use inference_engine::Which;
-        use inference_engine::server::{PipelineArgs, build_pipeline};
-        let mut pipeline_args = PipelineArgs::default();
-        pipeline_args.model_id = "google/gemma-3-1b-it".to_string();
-        pipeline_args.which = Which::InstructV3_1B;
-
-        let text_generation = build_pipeline(pipeline_args.clone());
-        let app_state = AppState {
-            text_generation: std::sync::Arc::new(tokio::sync::Mutex::new(text_generation)),
-            model_id: "google/gemma-3-1b-it".to_string(),
-            build_args: pipeline_args,
-        };
+        let app_state = AppState::default();
 
         // Get the inference router directly from the inference engine
         let inference_router = inference_engine::create_router(app_state);

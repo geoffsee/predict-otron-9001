@@ -10,7 +10,7 @@ Powerful local AI inference with OpenAI-compatible APIs
 
 The predict-otron-9000 is a flexible AI platform that provides:
 
-- **Local LLM Inference**: Run Gemma models locally with CPU or GPU acceleration
+- **Local LLM Inference**: Run Gemma and Llama models locally with CPU or GPU acceleration
 - **Embeddings Generation**: Create text embeddings with FastEmbed
 - **Web Interface**: Interact with models through a Leptos WASM chat interface
 - **TypeScript CLI**: Command-line client for testing and automation
@@ -22,7 +22,7 @@ The system supports both CPU and GPU acceleration (CUDA/Metal), with intelligent
 
 - **OpenAI Compatible**: API endpoints match OpenAI's format for easy integration
 - **Text Embeddings**: Generate high-quality text embeddings using FastEmbed
-- **Text Generation**: Chat completions with OpenAI-compatible API using Gemma models (1B, 2B, 7B variants including instruction-tuned models)
+- **Text Generation**: Chat completions with OpenAI-compatible API using Gemma and Llama models (various sizes including instruction-tuned variants)
 - **Performance Optimized**: Efficient caching and platform-specific optimizations for improved throughput
 - **Web Chat Interface**: Leptos-based WebAssembly (WASM) chat interface for browser-based interaction
 - **Flexible Deployment**: Run as monolithic service or microservices architecture
@@ -31,15 +31,19 @@ The system supports both CPU and GPU acceleration (CUDA/Metal), with intelligent
 
 ### Workspace Structure
 
-The project uses a 4-crate Rust workspace plus TypeScript components:
+The project uses a 7-crate Rust workspace plus TypeScript components:
 
 ```
 crates/
 ├── predict-otron-9000/     # Main orchestration server (Rust 2024)
-├── inference-engine/       # Gemma inference via Candle (Rust 2021) 
-├── embeddings-engine/      # FastEmbed embeddings service (Rust 2024)
-└── leptos-app/             # WASM web frontend (Rust 2021)
-cli.ts                      # TypeScript/Bun CLI client
+├── inference-engine/       # Multi-model inference orchestrator (Rust 2021)
+├── gemma-runner/          # Gemma model inference via Candle (Rust 2021)
+├── llama-runner/          # Llama model inference via Candle (Rust 2021)
+├── embeddings-engine/     # FastEmbed embeddings service (Rust 2024)
+├── leptos-app/            # WASM web frontend (Rust 2021)
+├── helm-chart-tool/       # Kubernetes deployment tooling (Rust 2024)
+└── scripts/
+    └── cli.ts             # TypeScript/Bun CLI client
 ```
 
 ### Service Architecture
@@ -149,16 +153,16 @@ cd crates/leptos-app
 #### TypeScript CLI Client
 ```bash
 # List available models
-bun run cli.ts --list-models
+bun run scripts/cli.ts --list-models
 
 # Chat completion
-bun run cli.ts "What is the capital of France?"
+bun run scripts/cli.ts "What is the capital of France?"
 
 # With specific model
-bun run cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
+bun run scripts/cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
 
 # Show help
-bun run cli.ts --help
+bun run scripts/cli.ts --help
 ```
 
 ## API Usage
@@ -454,7 +458,7 @@ curl -s http://localhost:8080/v1/models | jq
 
 **CLI client test:**
 ```bash
-bun run cli.ts "What is 2+2?"
+bun run scripts/cli.ts "What is 2+2?"
 ```
 
 **Web frontend:**

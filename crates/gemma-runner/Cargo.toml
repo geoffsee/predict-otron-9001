@@ -1,0 +1,28 @@
+[package]
+name = "gemma-runner"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+candle-core = { git = "https://github.com/huggingface/candle.git" }
+candle-nn = { git = "https://github.com/huggingface/candle.git" }
+candle-transformers = { git = "https://github.com/huggingface/candle.git" }
+candle-examples = { git = "https://github.com/huggingface/candle.git" }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+candle-core = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }
+candle-nn = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }
+candle-transformers = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }
+hf-hub = "0.4"
+tokenizers = "0.21"
+anyhow = "1.0"
+clap = { version = "4.0", features = ["derive", "string"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-chrome = "0.7"
+tracing-subscriber = "0.3"
+
+[features]
+default = []
+cuda = ["candle-core/cuda", "candle-nn/cuda", "candle-transformers/cuda"]
+metal = ["candle-core/metal", "candle-nn/metal", "candle-transformers/metal"]

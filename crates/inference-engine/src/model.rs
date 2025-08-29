@@ -2,6 +2,7 @@
 use candle_transformers::models::gemma::{Config as Config1, Model as Model1};
 use candle_transformers::models::gemma2::{Config as Config2, Model as Model2};
 use candle_transformers::models::gemma3::{Config as Config3, Model as Model3};
+use candle_transformers::models::csm::{LlamaConfig, LlamaModel};
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq, clap::ValueEnum)]
 pub enum Which {
@@ -37,12 +38,17 @@ pub enum Which {
     BaseV3_1B,
     #[value(name = "3-1b-it")]
     InstructV3_1B,
+    #[value(name = "llama-3.2-1b-it")]
+    LlamaInstruct3_2_1B,
+    #[value(name = "llama-3.2-3b-it")]
+    LlamaInstruct3_2_3B,
 }
 
 pub enum Model {
     V1(Model1),
     V2(Model2),
     V3(Model3),
+    Llama(LlamaModel),
 }
 
 impl Model {
@@ -51,6 +57,7 @@ impl Model {
             Self::V1(m) => m.forward(input_ids, pos),
             Self::V2(m) => m.forward(input_ids, pos),
             Self::V3(m) => m.forward(input_ids, pos),
+            Self::Llama(m) => m.forward(input_ids, pos),
         }
     }
 }
@@ -74,6 +81,8 @@ impl Which {
             Self::InstructV2_9B => "google/gemma-2-9b-it".to_string(),
             Self::BaseV3_1B => "google/gemma-3-1b-pt".to_string(),
             Self::InstructV3_1B => "google/gemma-3-1b-it".to_string(),
+            Self::LlamaInstruct3_2_1B => "meta-llama/Llama-3.2-1B-Instruct".to_string(),
+            Self::LlamaInstruct3_2_3B => "meta-llama/Llama-3.2-3B-Instruct".to_string(),
         }
     }
 
@@ -86,5 +95,9 @@ impl Which {
 
     pub fn is_v3_model(&self) -> bool {
         matches!(self, Self::BaseV3_1B | Self::InstructV3_1B)
+    }
+
+    pub fn is_llama_model(&self) -> bool {
+        matches!(self, Self::LlamaInstruct3_2_1B | Self::LlamaInstruct3_2_3B)
     }
 }

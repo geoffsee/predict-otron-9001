@@ -22,7 +22,7 @@ The Predict-Otron-9000 is a comprehensive multi-service AI platform built around
 graph TB
     subgraph "Core Components"
         A[Main Server<br/>predict-otron-9000]
-        B[Inference Engine<br/>Gemma via Candle]
+        B[Inference Engine<br/>Gemma/Llama via Candle]
         C[Embeddings Engine<br/>FastEmbed]
         D[Web Frontend<br/>Leptos WASM]
     end
@@ -52,7 +52,7 @@ graph TB
 
 ## Workspace Structure
 
-The project uses a 4-crate Rust workspace with TypeScript tooling, designed for maximum flexibility in deployment configurations.
+The project uses a 7-crate Rust workspace with TypeScript tooling, designed for maximum flexibility in deployment configurations.
 
 ```mermaid
 graph TD
@@ -62,24 +62,33 @@ graph TD
         end
         
         subgraph "AI Services"
-            B[inference-engine<br/>Edition: 2021<br/>Port: 8080<br/>Candle ML]
+            B[inference-engine<br/>Edition: 2021<br/>Port: 8080<br/>Multi-model orchestrator]
+            J[gemma-runner<br/>Edition: 2021<br/>Gemma via Candle]
+            K[llama-runner<br/>Edition: 2021<br/>Llama via Candle]
             C[embeddings-engine<br/>Edition: 2024<br/>Port: 8080<br/>FastEmbed]
         end
         
         subgraph "Frontend"
             D[leptos-app<br/>Edition: 2021<br/>Port: 3000/8788<br/>WASM/SSR]
         end
+        
+        subgraph "Tooling"
+            L[helm-chart-tool<br/>Edition: 2024<br/>K8s deployment]
+        end
     end
     
     subgraph "External Tooling"
-        E[cli.ts<br/>TypeScript/Bun<br/>OpenAI SDK]
+        E[scripts/cli.ts<br/>TypeScript/Bun<br/>OpenAI SDK]
     end
     
     subgraph "Dependencies"
         A --> B
         A --> C
         A --> D
-        B -.-> F[Candle 0.9.1]
+        B --> J
+        B --> K
+        J -.-> F[Candle 0.9.1]
+        K -.-> F
         C -.-> G[FastEmbed 4.x]
         D -.-> H[Leptos 0.8.0]
         E -.-> I[OpenAI SDK 5.16+]
@@ -87,9 +96,12 @@ graph TD
     
     style A fill:#e1f5fe
     style B fill:#f3e5f5
+    style J fill:#f3e5f5
+    style K fill:#f3e5f5
     style C fill:#e8f5e8
     style D fill:#fff3e0
     style E fill:#fce4ec
+    style L fill:#fff9c4
 ```
 
 ## Deployment Configurations

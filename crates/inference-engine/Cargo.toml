@@ -3,9 +3,16 @@ name = "inference-engine"
 version = "0.1.0"
 edition = "2021"
 
+
 [[bin]]
-name="cli"
-path = "src/cli_main.rs"
+name="gemma_inference"
+path = "src/gemma_inference.rs"
+required-features = ["bin"]
+
+[[bin]]
+name="llama_inference"
+path = "src/llama_inference.rs"
+required-features = ["bin"]
 
 
 [dependencies]
@@ -50,6 +57,8 @@ utoipa = { version = "4.2.0", features = ["axum_extras"] }
 uuid = { version = "1.7.0", features = ["v4"] }
 reborrow = "0.5.5"
 futures-util = "0.3.31"
+gemma-runner = { path = "../gemma-runner" }
+llama-runner = { path = "../llama-runner" }
 
 # --- Add this section for conditional compilation ---
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -82,6 +91,9 @@ tokio = "1.43.0"
 [build-dependencies]
 anyhow = { version = "1", features = ["backtrace"] }
 bindgen_cuda = { version = "0.1.1", optional = true }
+
+[features]
+bin = []
 
 
 

@@ -4,7 +4,9 @@ members = [
     "crates/inference-engine",
     "crates/embeddings-engine",
     "crates/leptos-app",
-    "crates/helm-chart-tool"
+    "crates/helm-chart-tool",
+    "crates/llama-runner",
+    "crates/gemma-runner"
 ]
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"

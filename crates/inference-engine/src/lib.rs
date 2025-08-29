@@ -4,14 +4,16 @@ pub mod model;
 pub mod text_generation;
 pub mod utilities_lib;
 pub mod openai_types;
-pub mod cli;
+// pub mod cli;
 pub mod server;
+pub mod inference;
 
 // Re-export key components for easier access
 pub use model::{Model, Which};
 pub use text_generation::TextGeneration;
 pub use token_output_stream::TokenOutputStream;
 pub use server::{AppState, create_router};
+pub use inference::ModelInference;
 
 use std::env;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
