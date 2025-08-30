@@ -1,10 +1,19 @@
-# predict-otron-9000
-
-A comprehensive multi-service AI platform built around local LLM inference, embeddings, and web interfaces.
-
+<h1 align="center">
+    predict-otron-9000
+</h1>
 <p align="center">
 Powerful local AI inference with OpenAI-compatible APIs
 </p>
+
+<br/>
+
+> This project is an educational aide for bootstrapping my understanding of language model inferencing at the lowest levels I can, serving as a "rubber-duck" solution for Kuberenetes based performance-oriented inference capabilities on air-gapped networks.
+
+> By isolating application behaviors in components at the crate level, development reduces to a short feedback loop for validation and integration, ultimately smoothing the learning curve for scalable AI systems.
+Stability is currently best effort. Many models require unique configuration. When stability is achieved, this project will be promoted to the seemueller-io GitHub organization under a different name.
+
+A comprehensive multi-service AI platform built around local LLM inference, embeddings, and web interfaces.
+
 
 ## Project Overview
 
@@ -24,7 +33,7 @@ The system supports both CPU and GPU acceleration (CUDA/Metal), with intelligent
 - **Text Embeddings**: Generate high-quality text embeddings using FastEmbed
 - **Text Generation**: Chat completions with OpenAI-compatible API using Gemma and Llama models (various sizes including instruction-tuned variants)
 - **Performance Optimized**: Efficient caching and platform-specific optimizations for improved throughput
-- **Web Chat Interface**: Leptos-based WebAssembly (WASM) chat interface for browser-based interaction
+- **Web Chat Interface**: Leptos chat interface
 - **Flexible Deployment**: Run as monolithic service or microservices architecture
 
 ## Architecture Overview
@@ -50,7 +59,7 @@ crates/
 
 - **Main Server** (port 8080): Orchestrates inference and embeddings services
 - **Embeddings Service** (port 8080): Standalone FastEmbed service with OpenAI API compatibility  
-- **Web Frontend** (port 8788): Leptos WASM chat interface served by Trunk
+- **Web Frontend** (port 8788): cargo leptos SSR app
 - **CLI Client**: TypeScript/Bun client for testing and automation
 
 ### Deployment Modes
