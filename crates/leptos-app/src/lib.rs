@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 pub mod app;
 
 #[cfg(feature = "hydrate")]
@@ -15,7 +17,17 @@ pub fn create_leptos_router() -> axum::Router {
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
 
-    let conf = get_configuration(None).unwrap();
+
+    // Build an absolute path to THIS crate's Cargo.toml
+    let mut cargo_toml = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    cargo_toml.push("Cargo.toml");
+
+    let conf = get_configuration(Some(
+        cargo_toml.to_str().expect("valid utf-8 path to Cargo.toml"),
+    ))
+        .expect("load leptos config");
+
+    let conf = get_configuration(Some(cargo_toml.to_str().unwrap())).unwrap();
     let leptos_options = conf.leptos_options;
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(App);

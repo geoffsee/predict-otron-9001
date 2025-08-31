@@ -85,11 +85,6 @@ The architecture supports multiple deployment patterns:
 - **Bun**: Required for TypeScript CLI client: `curl -fsSL https://bun.sh/install | bash`
 - **Node.js**: Alternative to Bun, supports OpenAI SDK v5.16.0+
 
-#### WASM Frontend Toolchain
-- **Trunk**: Required for Leptos frontend builds: `cargo install trunk`
-- **wasm-pack**: `cargo install wasm-pack`
-- **WASM target**: `rustup target add wasm32-unknown-unknown`
-
 #### ML Framework Dependencies
 - **Candle**: Version 0.9.1 with conditional compilation:
   - macOS: Metal support with CPU fallback for stability
@@ -134,11 +129,6 @@ cargo build --bin cli --package inference-engine --release
 cargo build --bin embeddings-engine --release
 ```
 
-**Web Frontend:**
-```bash
-cd crates/leptos-app
-trunk build --release
-```
 
 ### Running Services
 
@@ -435,8 +425,7 @@ For Kubernetes deployment details, see the [ARCHITECTURE.md](docs/ARCHITECTURE.m
 **Symptom:** WASM compilation failures  
 **Solution:**
 1. Install required targets: `rustup target add wasm32-unknown-unknown`
-2. Install trunk: `cargo install trunk`
-3. Check RUSTFLAGS in leptos-app/run.sh
+2. Check RUSTFLAGS in leptos-app/run.sh
 
 ### Network/Timeout Issues
 **Symptom:** First-time model downloads timing out  
@@ -484,7 +473,6 @@ cd crates/leptos-app && ./run.sh &
 **Cleanup:**
 ```bash
 pkill -f "predict-otron-9000"
-pkill -f "trunk"
 ```
 
 For networked tests and full functionality, ensure Hugging Face authentication is configured as described above.

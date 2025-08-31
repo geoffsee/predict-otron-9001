@@ -23,7 +23,6 @@ package-lock.json
 
 # Web frontend build outputs
 dist/
-.trunk/
 
 # ML model and embedding caches
 .fastembed_cache/
