@@ -2,11 +2,13 @@
     predict-otron-9000
 </h1>
 <p align="center">
-Powerful local AI inference with OpenAI-compatible APIs
+AI inference Server with OpenAI-compatible API (Limited Features)
+</p>
+<p align="center">
+  <img src="https://github.com/geoffsee/predict-otron-9001/blob/master/predict-otron-9000.png?raw=true" width="90%" />
 </p>
 
 <br/>
-
 > This project is an educational aide for bootstrapping my understanding of language model inferencing at the lowest levels I can, serving as a "rubber-duck" solution for Kubernetes based performance-oriented inference capabilities on air-gapped networks.
 
 > By isolating application behaviors in components at the crate level, development reduces to a short feedback loop for validation and integration, ultimately smoothing the learning curve for scalable AI systems.
