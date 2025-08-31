@@ -3,11 +3,11 @@ members = [
     "crates/predict-otron-9000",
     "crates/inference-engine",
     "crates/embeddings-engine",
-    "crates/leptos-app",
     "crates/helm-chart-tool",
     "crates/llama-runner",
     "crates/gemma-runner",
-    "crates/cli"
+    "crates/cli",
+    "crates/chat-ui"
 ]
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"
@@ -42,8 +42,3 @@ overflow-checks = true
 opt-level = 3
 debug = true
 lto = "thin"
-
-[[workspace.metadata.leptos]]
-# project name
-bin-package = "leptos-app"
-lib-package = "leptos-app"

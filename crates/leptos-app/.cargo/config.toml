@@ -1,3 +1,0 @@
-# Ensure getrandom works on wasm32-unknown-unknown without needing manual RUSTFLAGS
-[target.wasm32-unknown-unknown]
-rustflags = ["--cfg", "getrandom_backend=\"wasm_js\""]
