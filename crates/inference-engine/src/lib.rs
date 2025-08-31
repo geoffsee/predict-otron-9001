@@ -1,9 +1,6 @@
 // Expose modules for testing and library usage
 pub mod model;
 pub mod openai_types;
-pub mod text_generation;
-pub mod token_output_stream;
-pub mod utilities_lib;
 // pub mod cli;
 pub mod inference;
 pub mod server;
@@ -12,8 +9,6 @@ pub mod server;
 pub use inference::ModelInference;
 pub use model::{Model, Which};
 pub use server::{create_router, AppState};
-pub use text_generation::TextGeneration;
-pub use token_output_stream::TokenOutputStream;
 
 use std::env;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};

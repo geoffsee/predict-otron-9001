@@ -18,11 +18,6 @@ candle-core = { git = "https://github.com/huggingface/candle.git", features = ["
 candle-nn = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }
 candle-transformers = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }
 
-[target.'cfg(not(target_os = "macos"))'.dependencies]
-candle-core = { git = "https://github.com/huggingface/candle.git", features = ["cuda"], optional = true }
-candle-nn = { git = "https://github.com/huggingface/candle.git", features = ["cuda"], optional = true }
-candle-transformers = { git = "https://github.com/huggingface/candle.git", features = ["cuda"], optional = true }
-
 [features]
 default = []
 cuda = ["candle-core/cuda", "candle-nn/cuda", "candle-transformers/cuda"]

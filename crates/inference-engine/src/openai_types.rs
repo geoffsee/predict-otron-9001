@@ -1,6 +1,7 @@
 use either::Either;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use serde_json::json;
 use utoipa::ToSchema;
 
 /// Inner content structure for messages that can be either a string or key-value pairs
