@@ -11,6 +11,34 @@ members = [
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"
 
+# Compiler optimization profiles for the workspace
+[profile.release]
+opt-level = 3
+debug = false
+strip = true
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = true
+strip = false
+overflow-checks = true
+
+# Profile for fast development builds with some optimization
+[profile.dev-opt]
+inherits = "dev"
+opt-level = 1
+debug = true
+overflow-checks = true
+
+# Profile for benchmarking and profiling
+[profile.bench]
+opt-level = 3
+debug = true
+lto = "thin"
+
 [[workspace.metadata.leptos]]
 # project name
 bin-package = "leptos-app"
