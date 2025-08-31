@@ -1,7 +1,9 @@
 mod config;
 mod middleware;
 mod proxy;
+mod standalone;
 
+use crate::standalone::create_standalone_router;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::{Router, http::Uri, response::Html, serve};
@@ -11,6 +13,7 @@ use middleware::{MetricsLayer, MetricsLoggerFuture, MetricsStore};
 use proxy::create_proxy_router;
 use rust_embed::Embed;
 use std::env;
+use std::path::Component::ParentDir;
 use tokio::net::TcpListener;
 use tower_http::classify::ServerErrorsFailureClass::StatusCode;
 use tower_http::cors::{Any, CorsLayer};
@@ -49,33 +52,19 @@ async fn main() {
     let default_host = server_config.server_host.clone();
     let default_port = server_config.server_port;
 
-    // Create router based on server mode
-    let service_router = if server_config.clone().is_high_availability() {
-        tracing::info!("Running in HighAvailability mode - proxying to external services");
-        tracing::info!("  Inference service URL: {}", server_config.inference_url());
-        tracing::info!(
-            "  Embeddings service URL: {}",
-            server_config.embeddings_url()
-        );
-
-        // Use proxy router that forwards requests to external services
-        create_proxy_router(server_config.clone())
-    } else {
-        tracing::info!("Running in Standalone mode - using embedded services");
-
-        // Create unified router by merging embeddings and inference routers (existing behavior)
-        let embeddings_router = embeddings_engine::create_embeddings_router();
-
-        // Create AppState with correct model configuration
-        let app_state = AppState::default();
-
-        // Get the inference router directly from the inference engine
-        let inference_router = inference_engine::create_router(app_state);
-
-        // Merge the local routers
-        Router::new()
-            .merge(embeddings_router)
-            .merge(inference_router)
+    let service_router = match server_config.clone().is_high_availability() {
+        Ok(is_ha) => {
+            if is_ha {
+                log_config(server_config.clone());
+                create_proxy_router(server_config.clone())
+            } else {
+                log_config(server_config.clone());
+                create_standalone_router(server_config)
+            }
+        }
+        Err(error) => {
+            panic!("{}", error);
+        }
     };
 
     // Create CORS layer
@@ -122,6 +111,26 @@ async fn main() {
     tracing::info!("  POST /v1/chat/completions - Chat completions API");
 
     serve(listener, app).await.unwrap();
+}
+
+fn log_config(config: ServerConfig) {
+    match config.is_high_availability() {
+        Ok(is_high) => {
+            if is_high {
+                tracing::info!("Running in HighAvailability mode - proxying to external services");
+                tracing::info!("Inference service URL: {}", config.inference_url().unwrap());
+                tracing::info!(
+                    "Embeddings service URL: {}",
+                    config.embeddings_url().unwrap()
+                );
+            } else {
+                tracing::info!("Running in Standalone mode");
+            }
+        }
+        Err(error) => {
+            panic!("{}", error);
+        }
+    }
 }
 
 // Chat completions handler that properly uses the inference server crate's error handling

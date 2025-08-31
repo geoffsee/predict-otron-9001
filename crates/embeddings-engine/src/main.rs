@@ -1,8 +1,8 @@
 use async_openai::types::{CreateEmbeddingRequest, EmbeddingInput};
 use axum::{
-	response::Json as ResponseJson, routing::{get, post},
-	Json,
-	Router,
+    Json, Router,
+    response::Json as ResponseJson,
+    routing::{get, post},
 };
 use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
 use serde::{Deserialize, Serialize};
@@ -13,19 +13,17 @@ use tracing;
 const DEFAULT_SERVER_HOST: &str = "127.0.0.1";
 const DEFAULT_SERVER_PORT: &str = "8080";
 
-
 async fn embeddings_create(
     Json(payload): Json<CreateEmbeddingRequest>,
 ) -> ResponseJson<serde_json::Value> {
     let model = TextEmbedding::try_new(
-        InitOptions::new(EmbeddingModel::NomicEmbedTextV15).with_show_download_progress(true)
+        InitOptions::new(EmbeddingModel::NomicEmbedTextV15).with_show_download_progress(true),
     )
     .expect("Failed to initialize model");
 
+    let embedding_input = payload.input;
 
-	let embedding_input = payload.input;
-
-	let texts_from_embedding_input = match embedding_input {
+    let texts_from_embedding_input = match embedding_input {
         EmbeddingInput::String(text) => vec![text],
         EmbeddingInput::StringArray(texts) => texts,
         EmbeddingInput::IntegerArray(_) => {
@@ -45,12 +43,19 @@ async fn embeddings_create(
     tracing::info!("Embedding dimension: {}", embeddings[0].len());
 
     // Log the first 10 values of the original embedding at trace level
-    tracing::trace!("Original embedding preview: {:?}", &embeddings[0][..10.min(embeddings[0].len())]);
+    tracing::trace!(
+        "Original embedding preview: {:?}",
+        &embeddings[0][..10.min(embeddings[0].len())]
+    );
 
     // Check if there are any NaN or zero values in the original embedding
     let nan_count = embeddings[0].iter().filter(|&&x| x.is_nan()).count();
     let zero_count = embeddings[0].iter().filter(|&&x| x == 0.0).count();
-    tracing::trace!("Original embedding stats: NaN count={}, zero count={}", nan_count, zero_count);
+    tracing::trace!(
+        "Original embedding stats: NaN count={}, zero count={}",
+        nan_count,
+        zero_count
+    );
 
     // Create the final embedding
     let final_embedding = {
@@ -87,7 +92,11 @@ async fn embeddings_create(
             let target_dimension = 768;
             if padded_embedding.len() < target_dimension {
                 let padding_needed = target_dimension - padded_embedding.len();
-                tracing::trace!("Padding embedding with {} zeros to reach {} dimensions", padding_needed, target_dimension);
+                tracing::trace!(
+                    "Padding embedding with {} zeros to reach {} dimensions",
+                    padding_needed,
+                    target_dimension
+                );
                 padded_embedding.extend(vec![0.0; padding_needed]);
             }
 
@@ -98,7 +107,10 @@ async fn embeddings_create(
     tracing::trace!("Final embedding dimension: {}", final_embedding.len());
 
     // Log the first 10 values of the final embedding at trace level
-    tracing::trace!("Final embedding preview: {:?}", &final_embedding[..10.min(final_embedding.len())]);
+    tracing::trace!(
+        "Final embedding preview: {:?}",
+        &final_embedding[..10.min(final_embedding.len())]
+    );
 
     // Return a response that matches the OpenAI API format
     let response = serde_json::json!({
@@ -120,7 +132,7 @@ async fn embeddings_create(
 }
 
 fn create_app() -> Router {
-	Router::new()
+    Router::new()
         .route("/v1/embeddings", post(embeddings_create))
         .layer(TraceLayer::new_for_http())
 }
@@ -143,21 +155,21 @@ async fn main() {
         .init();
     let app = create_app();
 
-	let server_host = env::var("SERVER_HOST").unwrap_or_else(|_| DEFAULT_SERVER_HOST.to_string());
-	let server_port = env::var("SERVER_PORT").unwrap_or_else(|_| DEFAULT_SERVER_PORT.to_string());
-	let server_address = format!("{}:{}", server_host, server_port);
-	let listener = tokio::net::TcpListener::bind(server_address).await.unwrap();
-	tracing::info!("Listening on {}", listener.local_addr().unwrap());
+    let server_host = env::var("SERVER_HOST").unwrap_or_else(|_| DEFAULT_SERVER_HOST.to_string());
+    let server_port = env::var("SERVER_PORT").unwrap_or_else(|_| DEFAULT_SERVER_PORT.to_string());
+    let server_address = format!("{}:{}", server_host, server_port);
+    let listener = tokio::net::TcpListener::bind(server_address).await.unwrap();
+    tracing::info!("Listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
 
 #[cfg(test)]
 mod tests {
-	use super::*;
-	use axum::body::to_bytes;
-	use axum::body::Body;
-	use axum::http::StatusCode;
-	use tower::ServiceExt;
+    use super::*;
+    use axum::body::Body;
+    use axum::body::to_bytes;
+    use axum::http::StatusCode;
+    use tower::ServiceExt;
 
     #[tokio::test]
     async fn test_embeddings_create() {
@@ -168,11 +180,13 @@ mod tests {
 
         let body = CreateEmbeddingRequest {
             model: "nomic-text-embed".to_string(),
-            input: EmbeddingInput::from(vec!["The food was delicious and the waiter...".to_string()]),
-			encoding_format: None,
-			user: None,
-			dimensions: Some(768),
-		};
+            input: EmbeddingInput::from(vec![
+                "The food was delicious and the waiter...".to_string(),
+            ]),
+            encoding_format: None,
+            user: None,
+            dimensions: Some(768),
+        };
 
         let response = app
             .oneshot(

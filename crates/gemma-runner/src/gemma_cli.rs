@@ -1,6 +1,6 @@
-use std::io::Write;
-use clap::Parser;
 use crate::gemma_api::{run_gemma_api, GemmaInferenceConfig, WhichModel};
+use clap::Parser;
+use std::io::Write;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about = "Fast Gemma inference with Candle", long_about = None)]

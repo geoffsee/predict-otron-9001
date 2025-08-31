@@ -6,31 +6,32 @@ use leptos_router::{
 };
 
 #[cfg(feature = "hydrate")]
+use async_openai_wasm::config::OpenAIConfig;
+#[cfg(feature = "hydrate")]
+use async_openai_wasm::types::{FinishReason, Role};
+#[cfg(feature = "hydrate")]
+use async_openai_wasm::{
+    types::{
+        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestSystemMessageArgs,
+        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
+        Model as OpenAIModel,
+    },
+    Client,
+};
+#[cfg(feature = "hydrate")]
+use futures_util::StreamExt;
+#[cfg(feature = "hydrate")]
+use js_sys::Date;
+#[cfg(feature = "hydrate")]
+use leptos::task::spawn_local;
+#[cfg(feature = "hydrate")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "hydrate")]
 use std::collections::VecDeque;
 #[cfg(feature = "hydrate")]
 use uuid::Uuid;
 #[cfg(feature = "hydrate")]
-use js_sys::Date;
-#[cfg(feature = "hydrate")]
 use web_sys::{HtmlInputElement, KeyboardEvent, SubmitEvent};
-#[cfg(feature = "hydrate")]
-use futures_util::StreamExt;
-#[cfg(feature = "hydrate")]
-use async_openai_wasm::{
-    types::{
-        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestSystemMessageArgs,
-        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, Model as OpenAIModel,
-    },
-    Client,
-};
-#[cfg(feature = "hydrate")]
-use async_openai_wasm::config::OpenAIConfig;
-#[cfg(feature = "hydrate")]
-use async_openai_wasm::types::{Role, FinishReason};
-#[cfg(feature = "hydrate")]
-use leptos::task::spawn_local;
 
 #[cfg(feature = "hydrate")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,11 +44,15 @@ pub struct Message {
 
 #[cfg(feature = "hydrate")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MessageContent(pub either::Either<String, Vec<std::collections::HashMap<String, MessageInnerContent>>>);
+pub struct MessageContent(
+    pub either::Either<String, Vec<std::collections::HashMap<String, MessageInnerContent>>>,
+);
 
 #[cfg(feature = "hydrate")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MessageInnerContent(pub either::Either<String, std::collections::HashMap<String, String>>);
+pub struct MessageInnerContent(
+    pub either::Either<String, std::collections::HashMap<String, String>>,
+);
 
 #[cfg(feature = "hydrate")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,27 +67,40 @@ const DEFAULT_MODEL: &str = "default";
 
 #[cfg(feature = "hydrate")]
 async fn fetch_available_models() -> Result<Vec<OpenAIModel>, String> {
-    leptos::logging::log!("[DEBUG_LOG] fetch_available_models: Starting model fetch from http://localhost:8080/v1");
-    
+    leptos::logging::log!(
+        "[DEBUG_LOG] fetch_available_models: Starting model fetch from http://localhost:8080/v1"
+    );
+
     let config = OpenAIConfig::new().with_api_base("http://localhost:8080/v1".to_string());
     let client = Client::with_config(config);
-    
+
     match client.models().list().await {
         Ok(response) => {
             let model_count = response.data.len();
-            leptos::logging::log!("[DEBUG_LOG] fetch_available_models: Successfully fetched {} models", model_count);
-            
+            leptos::logging::log!(
+                "[DEBUG_LOG] fetch_available_models: Successfully fetched {} models",
+                model_count
+            );
+
             if model_count > 0 {
                 let model_names: Vec<String> = response.data.iter().map(|m| m.id.clone()).collect();
-                leptos::logging::log!("[DEBUG_LOG] fetch_available_models: Available models: {:?}", model_names);
+                leptos::logging::log!(
+                    "[DEBUG_LOG] fetch_available_models: Available models: {:?}",
+                    model_names
+                );
             } else {
-                leptos::logging::log!("[DEBUG_LOG] fetch_available_models: No models returned by server");
+                leptos::logging::log!(
+                    "[DEBUG_LOG] fetch_available_models: No models returned by server"
+                );
             }
-            
+
             Ok(response.data)
-        },
+        }
         Err(e) => {
-            leptos::logging::log!("[DEBUG_LOG] fetch_available_models: Failed to fetch models: {:?}", e);
+            leptos::logging::log!(
+                "[DEBUG_LOG] fetch_available_models: Failed to fetch models: {:?}",
+                e
+            );
             Err(format!("Failed to fetch models: {}", e))
         }
     }
@@ -150,7 +168,7 @@ fn ChatInterface() -> impl IntoView {
     {
         ChatInterfaceImpl()
     }
-    
+
     #[cfg(not(feature = "hydrate"))]
     {
         view! {
@@ -252,7 +270,7 @@ fn ChatInterfaceImpl() -> impl IntoView {
 
             let current_model = selected_model.get_untracked();
             let total_messages = chat_messages.len();
-            
+
             leptos::logging::log!("[DEBUG_LOG] send_message: Preparing request - model: '{}', history_count: {}, total_messages: {}", 
                           current_model, history_count, total_messages);
 
@@ -267,17 +285,17 @@ fn ChatInterfaceImpl() -> impl IntoView {
             // Send request
             let config = OpenAIConfig::new().with_api_base("http://localhost:8080/v1".to_string());
             let client = Client::with_config(config);
-            
+
             leptos::logging::log!("[DEBUG_LOG] send_message: Sending request to http://localhost:8080/v1 with model: '{}'", current_model);
 
             match client.chat().create_stream(request).await {
                 Ok(mut stream) => {
                     leptos::logging::log!("[DEBUG_LOG] send_message: Successfully created stream");
-                    
+
                     let mut assistant_created = false;
                     let mut content_appended = false;
                     let mut chunks_received = 0;
-                    
+
                     while let Some(next) = stream.next().await {
                         match next {
                             Ok(chunk) => {
@@ -335,7 +353,11 @@ fn ChatInterfaceImpl() -> impl IntoView {
                                 }
                             }
                             Err(e) => {
-                                leptos::logging::log!("[DEBUG_LOG] send_message: Stream error after {} chunks: {:?}", chunks_received, e);
+                                leptos::logging::log!(
+                                    "[DEBUG_LOG] send_message: Stream error after {} chunks: {:?}",
+                                    chunks_received,
+                                    e
+                                );
                                 set_messages.update(|msgs| {
                                     msgs.push_back(Message {
                                         id: Uuid::new_v4().to_string(),
@@ -364,7 +386,10 @@ fn ChatInterfaceImpl() -> impl IntoView {
                     leptos::logging::log!("[DEBUG_LOG] send_message: Stream completed successfully, received {} chunks", chunks_received);
                 }
                 Err(e) => {
-                    leptos::logging::log!("[DEBUG_LOG] send_message: Request failed with error: {:?}", e);
+                    leptos::logging::log!(
+                        "[DEBUG_LOG] send_message: Request failed with error: {:?}",
+                        e
+                    );
                     let error_message = Message {
                         id: Uuid::new_v4().to_string(),
                         role: "system".to_string(),
@@ -404,7 +429,8 @@ fn ChatInterfaceImpl() -> impl IntoView {
     };
 
     let messages_list = move || {
-        messages.get()
+        messages
+            .get()
             .into_iter()
             .map(|message| {
                 let role_class = match message.role.as_str() {
@@ -439,7 +465,7 @@ fn ChatInterfaceImpl() -> impl IntoView {
             <h1>"Chat Interface"</h1>
             <div class="model-selector">
                 <label for="model-select">"Model: "</label>
-                <select 
+                <select
                     id="model-select"
                     on:change=on_model_change
                     prop:value=selected_model

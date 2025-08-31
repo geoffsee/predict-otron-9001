@@ -1,10 +1,10 @@
 use axum::{
+    Router,
     body::Body,
     extract::{Request, State},
     http::{HeaderMap, Method, StatusCode, Uri},
     response::{IntoResponse, Response},
     routing::{get, post},
-    Router,
 };
 use reqwest::Client;
 use serde_json::Value;
@@ -47,10 +47,16 @@ async fn proxy_chat_completions(
     headers: HeaderMap,
     body: Body,
 ) -> Result<Response, StatusCode> {
-    let target_url = format!("{}/v1/chat/completions", proxy_client.config.inference_url());
-    
+    let target_url = format!(
+        "{}/v1/chat/completions",
+        proxy_client
+            .config
+            .inference_url()
+            .expect("Invalid Configuration")
+    );
+
     tracing::info!("Proxying chat completions request to: {}", target_url);
-    
+
     // Extract body as bytes
     let body_bytes = match axum::body::to_bytes(body, usize::MAX).await {
         Ok(bytes) => bytes,
@@ -63,7 +69,9 @@ async fn proxy_chat_completions(
     // Check if this is a streaming request
     let is_streaming = if let Ok(body_str) = String::from_utf8(body_bytes.to_vec()) {
         if let Ok(json) = serde_json::from_str::<Value>(&body_str) {
-            json.get("stream").and_then(|v| v.as_bool()).unwrap_or(false)
+            json.get("stream")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
         } else {
             false
         }
@@ -72,7 +80,8 @@ async fn proxy_chat_completions(
     };
 
     // Forward the request
-    let mut req_builder = proxy_client.client
+    let mut req_builder = proxy_client
+        .client
         .post(&target_url)
         .body(body_bytes.to_vec());
 
@@ -85,8 +94,7 @@ async fn proxy_chat_completions(
 
     match req_builder.send().await {
         Ok(response) => {
-            let mut resp_builder = Response::builder()
-                .status(response.status());
+            let mut resp_builder = Response::builder().status(response.status());
 
             // Forward response headers
             for (name, value) in response.headers().iter() {
@@ -99,14 +107,12 @@ async fn proxy_chat_completions(
             if is_streaming {
                 // For streaming, we need to forward the response as-is
                 match response.bytes().await {
-                    Ok(body) => {
-                        resp_builder
-                            .header("content-type", "text/plain; charset=utf-8")
-                            .header("cache-control", "no-cache")
-                            .header("connection", "keep-alive")
-                            .body(Body::from(body))
-                            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
-                    }
+                    Ok(body) => resp_builder
+                        .header("content-type", "text/plain; charset=utf-8")
+                        .header("cache-control", "no-cache")
+                        .header("connection", "keep-alive")
+                        .body(Body::from(body))
+                        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR),
                     Err(e) => {
                         tracing::error!("Failed to read streaming response body: {}", e);
                         Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -115,11 +121,9 @@ async fn proxy_chat_completions(
             } else {
                 // For non-streaming, forward the JSON response
                 match response.bytes().await {
-                    Ok(body) => {
-                        resp_builder
-                            .body(Body::from(body))
-                            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
-                    }
+                    Ok(body) => resp_builder
+                        .body(Body::from(body))
+                        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR),
                     Err(e) => {
                         tracing::error!("Failed to read response body: {}", e);
                         Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -139,10 +143,16 @@ async fn proxy_models(
     State(proxy_client): State<ProxyClient>,
     headers: HeaderMap,
 ) -> Result<Response, StatusCode> {
-    let target_url = format!("{}/v1/models", proxy_client.config.inference_url());
-    
+    let target_url = format!(
+        "{}/v1/models",
+        proxy_client
+            .config
+            .inference_url()
+            .expect("Invalid Configuration Detected")
+    );
+
     tracing::info!("Proxying models request to: {}", target_url);
-    
+
     let mut req_builder = proxy_client.client.get(&target_url);
 
     // Forward relevant headers
@@ -154,8 +164,7 @@ async fn proxy_models(
 
     match req_builder.send().await {
         Ok(response) => {
-            let mut resp_builder = Response::builder()
-                .status(response.status());
+            let mut resp_builder = Response::builder().status(response.status());
 
             // Forward response headers
             for (name, value) in response.headers().iter() {
@@ -165,11 +174,9 @@ async fn proxy_models(
             }
 
             match response.bytes().await {
-                Ok(body) => {
-                    resp_builder
-                        .body(Body::from(body))
-                        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
-                }
+                Ok(body) => resp_builder
+                    .body(Body::from(body))
+                    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR),
                 Err(e) => {
                     tracing::error!("Failed to read models response body: {}", e);
                     Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -189,10 +196,16 @@ async fn proxy_embeddings(
     headers: HeaderMap,
     body: Body,
 ) -> Result<Response, StatusCode> {
-    let target_url = format!("{}/v1/embeddings", proxy_client.config.embeddings_url());
-    
+    let target_url = format!(
+        "{}/v1/embeddings",
+        proxy_client
+            .config
+            .embeddings_url()
+            .expect("Invalid Configuration Detected")
+    );
+
     tracing::info!("Proxying embeddings request to: {}", target_url);
-    
+
     // Extract body as bytes
     let body_bytes = match axum::body::to_bytes(body, usize::MAX).await {
         Ok(bytes) => bytes,
@@ -203,7 +216,8 @@ async fn proxy_embeddings(
     };
 
     // Forward the request
-    let mut req_builder = proxy_client.client
+    let mut req_builder = proxy_client
+        .client
         .post(&target_url)
         .body(body_bytes.to_vec());
 
@@ -216,8 +230,7 @@ async fn proxy_embeddings(
 
     match req_builder.send().await {
         Ok(response) => {
-            let mut resp_builder = Response::builder()
-                .status(response.status());
+            let mut resp_builder = Response::builder().status(response.status());
 
             // Forward response headers
             for (name, value) in response.headers().iter() {
@@ -227,11 +240,9 @@ async fn proxy_embeddings(
             }
 
             match response.bytes().await {
-                Ok(body) => {
-                    resp_builder
-                        .body(Body::from(body))
-                        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
-                }
+                Ok(body) => resp_builder
+                    .body(Body::from(body))
+                    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR),
                 Err(e) => {
                     tracing::error!("Failed to read embeddings response body: {}", e);
                     Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -250,7 +261,7 @@ fn should_forward_header(header_name: &str) -> bool {
     match header_name.to_lowercase().as_str() {
         "content-type" | "content-length" | "authorization" | "user-agent" | "accept" => true,
         "host" | "connection" | "upgrade" => false, // Don't forward connection-specific headers
-        _ => true, // Forward other headers by default
+        _ => true,                                  // Forward other headers by default
     }
 }
 
@@ -259,7 +270,7 @@ fn should_forward_response_header(header_name: &str) -> bool {
     match header_name.to_lowercase().as_str() {
         "content-type" | "content-length" | "cache-control" | "connection" => true,
         "server" | "date" => false, // Don't forward server-specific headers
-        _ => true, // Forward other headers by default
+        _ => true,                  // Forward other headers by default
     }
 }
 
@@ -290,14 +301,20 @@ mod tests {
             server_host: "127.0.0.1".to_string(),
             server_port: 8080,
             server_mode: ServerMode::HighAvailability,
-            services: Services {
-                inference_url: "http://test-inference:8080".to_string(),
-                embeddings_url: "http://test-embeddings:8080".to_string(),
-            },
+            services: Some(Services {
+                inference_url: Some("http://test-inference:8080".to_string()),
+                embeddings_url: Some("http://test-embeddings:8080".to_string()),
+            }),
         };
 
         let proxy_client = ProxyClient::new(config);
-        assert_eq!(proxy_client.config.inference_url(), "http://test-inference:8080");
-        assert_eq!(proxy_client.config.embeddings_url(), "http://test-embeddings:8080");
+        assert_eq!(
+            proxy_client.config.inference_url().unwrap().as_str(),
+            "http://test-inference:8080"
+        );
+        assert_eq!(
+            proxy_client.config.embeddings_url().unwrap().as_str(),
+            "http://test-embeddings:8080"
+        );
     }
 }

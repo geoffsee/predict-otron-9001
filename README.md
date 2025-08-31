@@ -287,7 +287,7 @@ cargo test --workspace
 
 **End-to-end test script:**
 ```bash
-./test.sh
+./smoke_test.sh
 ```
 
 This script:
@@ -478,7 +478,7 @@ cd crates/leptos-app && ./run.sh &
 
 **Integration test:**
 ```bash
-./test.sh
+./smoke_test.sh
 ```
 
 **Cleanup:**

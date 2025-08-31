@@ -9,7 +9,10 @@ mod tests {
         // Test a few representative model variants
         assert_eq!(Which::Base2B.to_model_id(), "google/gemma-2b");
         assert_eq!(Which::Instruct7B.to_model_id(), "google/gemma-7b-it");
-        assert_eq!(Which::InstructV1_1_2B.to_model_id(), "google/gemma-1.1-2b-it");
+        assert_eq!(
+            Which::InstructV1_1_2B.to_model_id(),
+            "google/gemma-1.1-2b-it"
+        );
         assert_eq!(Which::CodeBase2B.to_model_id(), "google/codegemma-2b");
         assert_eq!(Which::BaseV2_2B.to_model_id(), "google/gemma-2-2b");
         assert_eq!(Which::InstructV3_1B.to_model_id(), "google/gemma-3-1b-it");

@@ -2,6 +2,8 @@ use axum::{
     extract::MatchedPath,
     http::{Request, Response},
 };
+use std::fmt;
+use std::task::ready;
 use std::{
     future::Future,
     pin::Pin,
@@ -12,8 +14,6 @@ use std::{
 use tokio::sync::Mutex;
 use tower::{Layer, Service};
 use tracing::{debug, info};
-use std::task::ready;
-use std::fmt;
 
 /// Performance metrics for a specific endpoint
 #[derive(Debug, Clone, Default)]
@@ -33,16 +33,16 @@ impl EndpointMetrics {
     pub fn add_response_time(&mut self, time_ms: u64) {
         self.count += 1;
         self.total_time_ms += time_ms;
-        
+
         if self.min_time_ms == 0 || time_ms < self.min_time_ms {
             self.min_time_ms = time_ms;
         }
-        
+
         if time_ms > self.max_time_ms {
             self.max_time_ms = time_ms;
         }
     }
-    
+
     /// Get the average response time in milliseconds
     pub fn avg_time_ms(&self) -> f64 {
         if self.count == 0 {
@@ -51,12 +51,15 @@ impl EndpointMetrics {
             self.total_time_ms as f64 / self.count as f64
         }
     }
-    
+
     /// Get a human-readable summary of the metrics
     pub fn summary(&self) -> String {
         format!(
             "requests: {}, avg: {:.2}ms, min: {}ms, max: {}ms",
-            self.count, self.avg_time_ms(), self.min_time_ms, self.max_time_ms
+            self.count,
+            self.avg_time_ms(),
+            self.min_time_ms,
+            self.max_time_ms
         )
     }
 }
@@ -75,14 +78,16 @@ impl MetricsStore {
             endpoints: Arc::new(Mutex::new(std::collections::HashMap::new())),
         }
     }
-    
+
     /// Record a request's timing information
     pub async fn record(&self, path: String, time_ms: u64) {
         let mut endpoints = self.endpoints.lock().await;
-        let metrics = endpoints.entry(path).or_insert_with(EndpointMetrics::default);
+        let metrics = endpoints
+            .entry(path)
+            .or_insert_with(EndpointMetrics::default);
         metrics.add_response_time(time_ms);
     }
-    
+
     /// Get metrics for all endpoints
     pub async fn get_all(&self) -> Vec<(String, EndpointMetrics)> {
         let endpoints = self.endpoints.lock().await;
@@ -91,12 +96,12 @@ impl MetricsStore {
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect()
     }
-    
+
     /// Log a summary of all metrics
     pub async fn log_summary(&self) {
         let metrics = self.get_all().await;
         info!("Performance metrics summary:");
-        
+
         for (path, metric) in metrics {
             info!("  {}: {}", path, metric.summary());
         }
@@ -163,26 +168,28 @@ where
         } else {
             req.uri().path().to_string()
         };
-        
+
         let method = req.method().clone();
         let start = Instant::now();
         let metrics_store = self.metrics_store.clone();
-        
+
         let future = self.inner.call(req);
-        
+
         Box::pin(async move {
             let response = future.await?;
-            
+
             let time = start.elapsed();
             let status = response.status();
             let time_ms = time.as_millis() as u64;
-            
+
             // Record the timing in our metrics store
-            metrics_store.record(format!("{} {}", method, path), time_ms).await;
-            
+            metrics_store
+                .record(format!("{} {}", method, path), time_ms)
+                .await;
+
             // Log the request timing
             debug!("{} {} {} - {} ms", method, path, status, time_ms);
-            
+
             Ok(response)
         })
     }
@@ -214,7 +221,7 @@ impl Future for MetricsLoggerFuture {
                 metrics_store.log_summary().await;
             });
         }
-        
+
         Poll::Pending
     }
 }

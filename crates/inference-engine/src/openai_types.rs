@@ -10,7 +10,10 @@ pub struct MessageInnerContent(
 );
 
 impl ToSchema<'_> for MessageInnerContent {
-    fn schema() -> (&'static str, utoipa::openapi::RefOr<utoipa::openapi::Schema>) {
+    fn schema() -> (
+        &'static str,
+        utoipa::openapi::RefOr<utoipa::openapi::Schema>,
+    ) {
         (
             "MessageInnerContent",
             utoipa::openapi::RefOr::T(message_inner_content_schema()),
@@ -45,12 +48,18 @@ fn message_inner_content_schema() -> utoipa::openapi::Schema {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct MessageContent(
     #[serde(with = "either::serde_untagged")]
-    pub Either<String, Vec<HashMap<String, MessageInnerContent>>>,
+    pub  Either<String, Vec<HashMap<String, MessageInnerContent>>>,
 );
 
 impl ToSchema<'_> for MessageContent {
-    fn schema() -> (&'static str, utoipa::openapi::RefOr<utoipa::openapi::Schema>) {
-        ("MessageContent", utoipa::openapi::RefOr::T(message_content_schema()))
+    fn schema() -> (
+        &'static str,
+        utoipa::openapi::RefOr<utoipa::openapi::Schema>,
+    ) {
+        (
+            "MessageContent",
+            utoipa::openapi::RefOr::T(message_content_schema()),
+        )
     }
 }
 

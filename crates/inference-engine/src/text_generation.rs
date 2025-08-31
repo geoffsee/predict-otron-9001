@@ -1,8 +1,8 @@
 use anyhow::{Error as E, Result};
 use candle_core::{DType, Device, Tensor};
 use candle_transformers::generation::LogitsProcessor;
-use tokenizers::Tokenizer;
 use std::collections::HashMap;
+use tokenizers::Tokenizer;
 
 use crate::model::Model;
 use crate::token_output_stream::TokenOutputStream;
@@ -37,7 +37,7 @@ impl TextGeneration {
         device: &Device,
     ) -> Self {
         let logits_processor = LogitsProcessor::new(seed, temp, top_p);
-        
+
         // Initialize CPU device only if the primary device is not already CPU
         let (cpu_device, try_primary_device) = if device.is_cpu() {
             // If already on CPU, no need for a fallback device
@@ -46,7 +46,7 @@ impl TextGeneration {
             // Store CPU device for fallback and set flag to try primary device first
             (Some(Device::Cpu), true)
         };
-        
+
         Self {
             model,
             tokenizer: TokenOutputStream::new(tokenizer),
@@ -74,21 +74,21 @@ impl TextGeneration {
                 return self.model.forward(input, start_pos).map_err(E::msg);
             }
         }
-        
+
         // Try running on the primary device first
         match self.model.forward(input, start_pos) {
             Ok(result) => Ok(result),
             Err(err) => {
                 // Convert to string to check for unsupported operation
                 let err_string = err.to_string();
-                
+
                 // Check if the error is about unsupported operations or shape mismatches
-                if (err_string.contains("no metal implementation for") ||
-                     err_string.contains("no cuda implementation for") ||
-                     err_string.contains("shape mismatch") ||
-                     err_string.contains("broadcast_add")) &&
-                   self.cpu_device.is_some() {
-                    
+                if (err_string.contains("no metal implementation for")
+                    || err_string.contains("no cuda implementation for")
+                    || err_string.contains("shape mismatch")
+                    || err_string.contains("broadcast_add"))
+                    && self.cpu_device.is_some()
+                {
                     // Extract operation name for better logging
                     let op_name = if let Some(idx) = err_string.find("for ") {
                         &err_string[(idx + 4)..]
@@ -97,19 +97,24 @@ impl TextGeneration {
                     } else {
                         "an operation"
                     };
-                    
+
                     // Log the fallback
-                    tracing::warn!("The primary device does not support {}. Falling back to CPU.", op_name);
-                    
+                    tracing::warn!(
+                        "The primary device does not support {}. Falling back to CPU.",
+                        op_name
+                    );
+
                     // Move input to CPU and try again
                     let cpu_device = self.cpu_device.as_ref().unwrap();
                     let cpu_input = input.to_device(cpu_device).map_err(E::msg)?;
                     let cpu_result = self.model.forward(&cpu_input, start_pos).map_err(E::msg)?;
-                    
+
                     // Don't try primary device for future operations
                     self.try_primary_device = false;
-                    tracing::info!("Successfully executed on CPU. Will use CPU for subsequent operations.");
-                    
+                    tracing::info!(
+                        "Successfully executed on CPU. Will use CPU for subsequent operations."
+                    );
+
                     // Move result back to original device
                     cpu_result.to_device(&self.device).map_err(E::msg)
                 } else {
@@ -119,7 +124,7 @@ impl TextGeneration {
             }
         }
     }
-    
+
     // Reset method to clear state between requests
     pub fn reset_state(&mut self) {
         // Reset the primary device flag so we try the primary device first for each new request
@@ -174,8 +179,12 @@ impl TextGeneration {
         // Log cache efficiency statistics
         if !penalty_tokens.is_empty() {
             let cache_efficiency = (cache_hits.get() as f32 / penalty_tokens.len() as f32) * 100.0;
-            tracing::trace!("Repeat penalty cache hits: {}/{} ({:.1}%)",
-                           cache_hits.get(), penalty_tokens.len(), cache_efficiency);
+            tracing::trace!(
+                "Repeat penalty cache hits: {}/{} ({:.1}%)",
+                cache_hits.get(),
+                penalty_tokens.len(),
+                cache_efficiency
+            );
         }
 
         // Create a new tensor with the modified logits (single tensor creation)
@@ -191,19 +200,21 @@ impl TextGeneration {
     // Run text generation and print to stdout
     pub fn run(&mut self, prompt: &str, sample_len: usize) -> Result<()> {
         use std::io::Write;
-        
+
         // Track overall performance
         let start_time = std::time::Instant::now();
-        
+
         // Keep penalty cache across generation for better repetition prevention
         // Only clear cache if it becomes too large to prevent memory bloat
         if self.penalty_cache.len() > 10000 {
             self.penalty_cache.clear();
             tracing::debug!("Cleared penalty cache due to size limit");
         } else {
-            tracing::debug!("Maintaining penalty cache across generation for better repetition prevention");
+            tracing::debug!(
+                "Maintaining penalty cache across generation for better repetition prevention"
+            );
         }
-        
+
         // Phase 1: Tokenize input
         let tokenize_start = std::time::Instant::now();
         self.tokenizer.clear();
@@ -214,11 +225,11 @@ impl TextGeneration {
             .map_err(E::msg)?
             .get_ids()
             .to_vec();
-        
+
         let tokenize_time = tokenize_start.elapsed();
         tracing::debug!("Tokenization completed in {:.2?}", tokenize_time);
         tracing::debug!("Input tokens: {}", tokens.len());
-        
+
         // Print tokenized prompt
         for &t in tokens.iter() {
             if let Some(t) = self.tokenizer.next_token(t)? {
@@ -253,13 +264,13 @@ impl TextGeneration {
 
         // Phase 2: Text generation
         let start_gen = std::time::Instant::now();
-        
+
         // Track per-token generation timing for performance analysis
         let mut token_times = Vec::new();
         let mut forward_times = Vec::new();
         let mut repeat_penalty_times = Vec::new();
         let mut sampling_times = Vec::new();
-        
+
         // For Model2 and Model3, we need to use a special approach for shape compatibility
         if needs_special_handling {
             // For gemma-2 and gemma-3 models, we'll generate one token at a time with the full context
@@ -268,19 +279,20 @@ impl TextGeneration {
             // Initial generation with the full prompt
             let forward_start = std::time::Instant::now();
             let input = Tensor::new(tokens.as_slice(), &self.device)?.unsqueeze(0)?;
-            
+
             // Use execute_with_fallback which handles both device compatibility and shape mismatches
             let mut logits = self.execute_with_fallback(&input, 0)?;
-            
+
             logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
             let forward_time = forward_start.elapsed();
             forward_times.push(forward_time);
 
             for _ in 0..sample_len {
                 let token_start = std::time::Instant::now();
-                
+
                 // Apply repeat penalty using optimized cached implementation
-                let (current_logits, repeat_time) = self.apply_cached_repeat_penalty(logits.clone(), &tokens)?;
+                let (current_logits, repeat_time) =
+                    self.apply_cached_repeat_penalty(logits.clone(), &tokens)?;
                 repeat_penalty_times.push(repeat_time);
 
                 // Track token sampling
@@ -304,150 +316,162 @@ impl TextGeneration {
                 // For the next iteration, just use the new token
                 let forward_start = std::time::Instant::now();
                 let new_input = Tensor::new(&[next_token], &self.device)?.unsqueeze(0)?;
-                
+
                 // Use execute_with_fallback for both Gemma 3 and other models
                 logits = self.execute_with_fallback(&new_input, tokens.len() - 1)?;
-                
+
                 logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
                 let forward_time = forward_start.elapsed();
                 forward_times.push(forward_time);
-                
+
                 let token_time = token_start.elapsed();
                 token_times.push(token_time);
             }
         } else {
             // Standard approach for other models
             tracing::debug!("Using standard generation approach");
-            
-            for index in 0..sample_len {
-            let token_start = std::time::Instant::now();
-            
-            let context_size = if index > 0 { 1 } else { tokens.len() };
-            let start_pos = tokens.len().saturating_sub(context_size);
-            let ctxt = &tokens[start_pos..];
-            
-            // Track tensor operations and model forward pass
-            let forward_start = std::time::Instant::now();
-            let input = Tensor::new(ctxt, &self.device)?.unsqueeze(0)?;
-            let logits = self.execute_with_fallback(&input, start_pos)?;
-            let logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
-            let forward_time = forward_start.elapsed();
-            forward_times.push(forward_time);
-            
-            // Apply repeat penalty using optimized cached implementation
-            let (logits, repeat_time) = self.apply_cached_repeat_penalty(logits, &tokens)?;
-            repeat_penalty_times.push(repeat_time);
 
-            // Track token sampling
-            let sampling_start = std::time::Instant::now();
-            let next_token = self.logits_processor.sample(&logits)?;
-            let sampling_time = sampling_start.elapsed();
-            sampling_times.push(sampling_time);
-            
-            tokens.push(next_token);
-            generated_tokens += 1;
-            if next_token == eos_token || next_token == eot_token {
-                break;
+            for index in 0..sample_len {
+                let token_start = std::time::Instant::now();
+
+                let context_size = if index > 0 { 1 } else { tokens.len() };
+                let start_pos = tokens.len().saturating_sub(context_size);
+                let ctxt = &tokens[start_pos..];
+
+                // Track tensor operations and model forward pass
+                let forward_start = std::time::Instant::now();
+                let input = Tensor::new(ctxt, &self.device)?.unsqueeze(0)?;
+                let logits = self.execute_with_fallback(&input, start_pos)?;
+                let logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
+                let forward_time = forward_start.elapsed();
+                forward_times.push(forward_time);
+
+                // Apply repeat penalty using optimized cached implementation
+                let (logits, repeat_time) = self.apply_cached_repeat_penalty(logits, &tokens)?;
+                repeat_penalty_times.push(repeat_time);
+
+                // Track token sampling
+                let sampling_start = std::time::Instant::now();
+                let next_token = self.logits_processor.sample(&logits)?;
+                let sampling_time = sampling_start.elapsed();
+                sampling_times.push(sampling_time);
+
+                tokens.push(next_token);
+                generated_tokens += 1;
+                if next_token == eos_token || next_token == eot_token {
+                    break;
+                }
+                if let Some(t) = self.tokenizer.next_token(next_token)? {
+                    print!("{t}");
+                    std::io::stdout().flush()?;
+                }
+
+                let token_time = token_start.elapsed();
+                token_times.push(token_time);
             }
-            if let Some(t) = self.tokenizer.next_token(next_token)? {
-                print!("{t}");
-                std::io::stdout().flush()?;
-            }
-            
-            let token_time = token_start.elapsed();
-            token_times.push(token_time);
         }
-        }
-        
+
         let dt = start_gen.elapsed();
-        
+
         // Phase 3: Final decoding and output
         let decode_start = std::time::Instant::now();
         if let Some(rest) = self.tokenizer.decode_rest().map_err(E::msg)? {
             print!("{rest}");
         }
         let decode_time = decode_start.elapsed();
-        
+
         std::io::stdout().flush()?;
-        
+
         // Calculate generation speed
         let tokens_per_second = generated_tokens as f64 / dt.as_secs_f64();
-        
+
         // Calculate average time per token and component breakdown
         let avg_token_time = if !token_times.is_empty() {
             token_times.iter().sum::<std::time::Duration>() / token_times.len() as u32
         } else {
             std::time::Duration::from_secs(0)
         };
-        
+
         let avg_forward_time = if !forward_times.is_empty() {
             forward_times.iter().sum::<std::time::Duration>() / forward_times.len() as u32
         } else {
             std::time::Duration::from_secs(0)
         };
-        
+
         let avg_repeat_time = if !repeat_penalty_times.is_empty() {
-            repeat_penalty_times.iter().sum::<std::time::Duration>() / repeat_penalty_times.len() as u32
+            repeat_penalty_times.iter().sum::<std::time::Duration>()
+                / repeat_penalty_times.len() as u32
         } else {
             std::time::Duration::from_secs(0)
         };
-        
+
         let avg_sampling_time = if !sampling_times.is_empty() {
             sampling_times.iter().sum::<std::time::Duration>() / sampling_times.len() as u32
         } else {
             std::time::Duration::from_secs(0)
         };
-        
+
         // Log performance metrics
         println!(
             "\n{generated_tokens} tokens generated ({:.2} token/s)",
             tokens_per_second,
         );
-        
+
         // Record detailed performance metrics
         tracing::info!("Text generation completed in {:.2?}", dt);
         tracing::info!("Tokens generated: {}", generated_tokens);
         tracing::info!("Generation speed: {:.2} tokens/second", tokens_per_second);
         tracing::info!("Average time per token: {:.2?}", avg_token_time);
-        tracing::debug!("  - Forward pass: {:.2?} ({:.1}%)", 
-            avg_forward_time, 
+        tracing::debug!(
+            "  - Forward pass: {:.2?} ({:.1}%)",
+            avg_forward_time,
             avg_forward_time.as_secs_f64() / avg_token_time.as_secs_f64() * 100.0
         );
-        tracing::debug!("  - Repeat penalty: {:.2?} ({:.1}%)", 
+        tracing::debug!(
+            "  - Repeat penalty: {:.2?} ({:.1}%)",
             avg_repeat_time,
             avg_repeat_time.as_secs_f64() / avg_token_time.as_secs_f64() * 100.0
         );
-        tracing::debug!("  - Sampling: {:.2?} ({:.1}%)", 
+        tracing::debug!(
+            "  - Sampling: {:.2?} ({:.1}%)",
             avg_sampling_time,
             avg_sampling_time.as_secs_f64() / avg_token_time.as_secs_f64() * 100.0
         );
-        
+
         // Log total request time
         let total_time = start_time.elapsed();
         tracing::info!("Total request time: {:.2?}", total_time);
-        tracing::debug!("  - Tokenization: {:.2?} ({:.1}%)", 
+        tracing::debug!(
+            "  - Tokenization: {:.2?} ({:.1}%)",
             tokenize_time,
             tokenize_time.as_secs_f64() / total_time.as_secs_f64() * 100.0
         );
-        tracing::debug!("  - Generation: {:.2?} ({:.1}%)", 
+        tracing::debug!(
+            "  - Generation: {:.2?} ({:.1}%)",
             dt,
             dt.as_secs_f64() / total_time.as_secs_f64() * 100.0
         );
-        tracing::debug!("  - Final decoding: {:.2?} ({:.1}%)", 
+        tracing::debug!(
+            "  - Final decoding: {:.2?} ({:.1}%)",
             decode_time,
             decode_time.as_secs_f64() / total_time.as_secs_f64() * 100.0
         );
-        
+
         Ok(())
     }
 
     // Run text generation and write to a buffer
-    pub fn run_with_output(&mut self, prompt: &str, sample_len: usize, output: &mut Vec<u8>) -> Result<()> {
+    pub fn run_with_output(
+        &mut self,
+        prompt: &str,
+        sample_len: usize,
+        output: &mut Vec<u8>,
+    ) -> Result<()> {
         use std::io::Write;
-        
+
         // Track overall performance
         let start_time = std::time::Instant::now();
-        
+
         // Keep penalty cache across generation for better repetition prevention
         // Only clear cache if it becomes too large to prevent memory bloat
         if self.penalty_cache.len() > 10000 {
@@ -456,7 +480,7 @@ impl TextGeneration {
         } else {
             tracing::debug!("Maintaining penalty cache across generation for better repetition prevention (API mode)");
         }
-        
+
         // Phase 1: Tokenize input
         let tokenize_start = std::time::Instant::now();
         self.tokenizer.clear();
@@ -467,7 +491,7 @@ impl TextGeneration {
             .map_err(E::msg)?
             .get_ids()
             .to_vec();
-        
+
         let tokenize_time = tokenize_start.elapsed();
         tracing::debug!("API Tokenization completed in {:.2?}", tokenize_time);
         tracing::debug!("API Input tokens: {}", tokens.len());
@@ -488,7 +512,10 @@ impl TextGeneration {
         let eot_token = match self.tokenizer.get_token("<end_of_turn>") {
             Some(token) => token,
             None => {
-                write!(output, "Warning: <end_of_turn> token not found in tokenizer, using <eos> as a backup")?;
+                write!(
+                    output,
+                    "Warning: <end_of_turn> token not found in tokenizer, using <eos> as a backup"
+                )?;
                 eos_token
             }
         };
@@ -506,7 +533,7 @@ impl TextGeneration {
 
         // Track generation timing
         let start_gen = std::time::Instant::now();
-        
+
         // Track per-token generation timing for performance analysis
         let mut token_times = Vec::new();
         let mut forward_times = Vec::new();
@@ -521,19 +548,20 @@ impl TextGeneration {
             // Initial generation with the full prompt
             let forward_start = std::time::Instant::now();
             let input = Tensor::new(tokens.as_slice(), &self.device)?.unsqueeze(0)?;
-            
+
             // Use execute_with_fallback which handles both device compatibility and shape mismatches
             let mut logits = self.execute_with_fallback(&input, 0)?;
-            
+
             logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
             let forward_time = forward_start.elapsed();
             forward_times.push(forward_time);
 
             for _ in 0..sample_len {
                 let token_start = std::time::Instant::now();
-                
+
                 // Apply repeat penalty using optimized cached implementation
-                let (current_logits, repeat_time) = self.apply_cached_repeat_penalty(logits.clone(), &tokens)?;
+                let (current_logits, repeat_time) =
+                    self.apply_cached_repeat_penalty(logits.clone(), &tokens)?;
                 repeat_penalty_times.push(repeat_time);
 
                 // Track token sampling
@@ -556,25 +584,32 @@ impl TextGeneration {
                 // For the next iteration, just use the new token
                 let forward_start = std::time::Instant::now();
                 let new_input = Tensor::new(&[next_token], &self.device)?.unsqueeze(0)?;
-                
+
                 // Use execute_with_fallback for both Gemma 3 and other models
                 logits = self.execute_with_fallback(&new_input, tokens.len() - 1)?;
-                
+
                 logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
                 let forward_time = forward_start.elapsed();
                 forward_times.push(forward_time);
-                
+
                 let token_time = token_start.elapsed();
                 token_times.push(token_time);
             }
-            
+
             let dt = start_gen.elapsed();
-            
+
             // Calculate and log performance metrics
             Self::log_performance_metrics(
-                dt, generated_tokens, &token_times, &forward_times, 
-                &repeat_penalty_times, &sampling_times, tokenize_time, 
-                std::time::Duration::from_secs(0), start_time, "API"
+                dt,
+                generated_tokens,
+                &token_times,
+                &forward_times,
+                &repeat_penalty_times,
+                &sampling_times,
+                tokenize_time,
+                std::time::Duration::from_secs(0),
+                start_time,
+                "API",
             );
 
             return Ok(());
@@ -582,22 +617,25 @@ impl TextGeneration {
 
         // Standard approach for other models
         tracing::debug!("Using standard generation approach");
-        
+
         for index in 0..sample_len {
             let token_start = std::time::Instant::now();
-            
+
             // Use sliding window context instead of single token to preserve context and reduce repetition
-            let context_size = if index > 0 { 
+            let context_size = if index > 0 {
                 std::cmp::min(self.context_window_size, tokens.len())
-            } else { 
-                tokens.len() 
+            } else {
+                tokens.len()
             };
             let start_pos = tokens.len().saturating_sub(context_size);
             let ctxt = &tokens[start_pos..];
-            
-            tracing::debug!("API standard model: Using sliding window context: {} tokens (from position {})", 
-                ctxt.len(), start_pos);
-            
+
+            tracing::debug!(
+                "API standard model: Using sliding window context: {} tokens (from position {})",
+                ctxt.len(),
+                start_pos
+            );
+
             // Track tensor operations and model forward pass
             let forward_start = std::time::Instant::now();
             let input = Tensor::new(ctxt, &self.device)?.unsqueeze(0)?;
@@ -605,7 +643,7 @@ impl TextGeneration {
             let logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
             let forward_time = forward_start.elapsed();
             forward_times.push(forward_time);
-            
+
             // Apply repeat penalty using optimized cached implementation
             let (logits, repeat_time) = self.apply_cached_repeat_penalty(logits, &tokens)?;
             repeat_penalty_times.push(repeat_time);
@@ -615,7 +653,7 @@ impl TextGeneration {
             let next_token = self.logits_processor.sample(&logits)?;
             let sampling_time = sampling_start.elapsed();
             sampling_times.push(sampling_time);
-            
+
             tokens.push(next_token);
             generated_tokens += 1;
             if next_token == eos_token || next_token == eot_token {
@@ -624,41 +662,53 @@ impl TextGeneration {
             if let Some(t) = self.tokenizer.next_token(next_token)? {
                 write!(output, "{}", t)?;
             }
-            
+
             let token_time = token_start.elapsed();
             token_times.push(token_time);
         }
-        
+
         let dt = start_gen.elapsed();
-        
+
         // Phase 3: Final decoding and output
         let decode_start = std::time::Instant::now();
-        
+
         // Write any remaining tokens
         if let Some(rest) = self.tokenizer.decode_rest().map_err(E::msg)? {
             write!(output, "{}", rest)?;
         }
-        
+
         let decode_time = decode_start.elapsed();
-        
+
         // Log performance metrics
         Self::log_performance_metrics(
-            dt, generated_tokens, &token_times, &forward_times, 
-            &repeat_penalty_times, &sampling_times, tokenize_time, 
-            decode_time, start_time, "API"
+            dt,
+            generated_tokens,
+            &token_times,
+            &forward_times,
+            &repeat_penalty_times,
+            &sampling_times,
+            tokenize_time,
+            decode_time,
+            start_time,
+            "API",
         );
-        
+
         Ok(())
     }
 
     // Run text generation with streaming callback for each token
-    pub async fn run_with_streaming<F>(&mut self, prompt: &str, sample_len: usize, mut token_callback: F) -> Result<String>
+    pub async fn run_with_streaming<F>(
+        &mut self,
+        prompt: &str,
+        sample_len: usize,
+        mut token_callback: F,
+    ) -> Result<String>
     where
         F: FnMut(&str) -> Result<()>,
     {
         // Track overall performance
         let start_time = std::time::Instant::now();
-        
+
         // Keep penalty cache across generation for better repetition prevention
         // Only clear cache if it becomes too large to prevent memory bloat
         if self.penalty_cache.len() > 10000 {
@@ -667,7 +717,7 @@ impl TextGeneration {
         } else {
             tracing::debug!("Maintaining penalty cache across generation for better repetition prevention (streaming mode)");
         }
-        
+
         // Phase 1: Tokenize input
         let tokenize_start = std::time::Instant::now();
         self.tokenizer.clear();
@@ -678,7 +728,7 @@ impl TextGeneration {
             .map_err(E::msg)?
             .get_ids()
             .to_vec();
-        
+
         let tokenize_time = tokenize_start.elapsed();
         tracing::debug!("Streaming Tokenization completed in {:.2?}", tokenize_time);
         tracing::debug!("Streaming Input tokens: {}", tokens.len());
@@ -695,7 +745,9 @@ impl TextGeneration {
         let eot_token = match self.tokenizer.get_token("<end_of_turn>") {
             Some(token) => token,
             None => {
-                tracing::warn!("Warning: <end_of_turn> token not found in tokenizer, using <eos> as a backup");
+                tracing::warn!(
+                    "Warning: <end_of_turn> token not found in tokenizer, using <eos> as a backup"
+                );
                 eos_token
             }
         };
@@ -709,7 +761,7 @@ impl TextGeneration {
 
         // Track generation timing
         let start_gen = std::time::Instant::now();
-        
+
         // Track per-token generation timing for performance analysis
         let mut token_times = Vec::new();
         let mut forward_times = Vec::new();
@@ -718,26 +770,36 @@ impl TextGeneration {
 
         // For Model2 and Model3, we need to use a special approach for shape compatibility
         if needs_special_handling {
-            tracing::debug!("Using special generation approach for gemma-2/gemma-3 models (streaming)");
+            tracing::debug!(
+                "Using special generation approach for gemma-2/gemma-3 models (streaming)"
+            );
             tracing::debug!("Streaming: sample_len = {}", sample_len);
 
             // Initial generation with the full prompt
             let forward_start = std::time::Instant::now();
             let input = Tensor::new(tokens.as_slice(), &self.device)?.unsqueeze(0)?;
-            
+
             let mut logits = self.execute_with_fallback(&input, 0)?;
-            
+
             logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
             let forward_time = forward_start.elapsed();
             forward_times.push(forward_time);
 
-            tracing::debug!("Streaming: About to enter generation loop with sample_len = {}", sample_len);
+            tracing::debug!(
+                "Streaming: About to enter generation loop with sample_len = {}",
+                sample_len
+            );
             for gen_index in 0..sample_len {
-                tracing::debug!("Streaming: Starting generation iteration {} / {}", gen_index + 1, sample_len);
+                tracing::debug!(
+                    "Streaming: Starting generation iteration {} / {}",
+                    gen_index + 1,
+                    sample_len
+                );
                 let token_start = std::time::Instant::now();
-                
+
                 // Apply repeat penalty using optimized cached implementation
-                let (current_logits, repeat_time) = self.apply_cached_repeat_penalty(logits.clone(), &tokens)?;
+                let (current_logits, repeat_time) =
+                    self.apply_cached_repeat_penalty(logits.clone(), &tokens)?;
                 repeat_penalty_times.push(repeat_time);
 
                 // Track token sampling
@@ -749,8 +811,13 @@ impl TextGeneration {
                 tokens.push(next_token);
                 generated_tokens += 1;
 
-                tracing::debug!("Streaming: Generated token {} (id: {}), eos: {}, eot: {}", 
-                    next_token, next_token, eos_token, eot_token);
+                tracing::debug!(
+                    "Streaming: Generated token {} (id: {}), eos: {}, eot: {}",
+                    next_token,
+                    next_token,
+                    eos_token,
+                    eot_token
+                );
                 if next_token == eos_token || next_token == eot_token {
                     tracing::debug!("Streaming: Breaking due to end token");
                     break;
@@ -764,16 +831,22 @@ impl TextGeneration {
 
                 // For the next iteration, use single token to avoid shape mismatch
                 let forward_start = std::time::Instant::now();
-                tracing::debug!("Streaming: Preparing next forward pass with {} tokens", tokens.len());
-                
+                tracing::debug!(
+                    "Streaming: Preparing next forward pass with {} tokens",
+                    tokens.len()
+                );
+
                 // Use just the last token for subsequent iterations to avoid shape mismatch
                 // This is required for Gemma model's attention mechanism compatibility
-                let context_tokens = &tokens[(tokens.len()-1)..];
+                let context_tokens = &tokens[(tokens.len() - 1)..];
                 let start_pos = tokens.len() - 1;
-                
-                tracing::debug!("Streaming: Using single token context for Gemma: {} tokens (from position {})", 
-                    context_tokens.len(), start_pos);
-                
+
+                tracing::debug!(
+                    "Streaming: Using single token context for Gemma: {} tokens (from position {})",
+                    context_tokens.len(),
+                    start_pos
+                );
+
                 let new_input = match Tensor::new(context_tokens, &self.device) {
                     Ok(tensor) => tensor,
                     Err(e) => {
@@ -781,7 +854,7 @@ impl TextGeneration {
                         return Err(e.into());
                     }
                 };
-                
+
                 let new_input = match new_input.unsqueeze(0) {
                     Ok(tensor) => tensor,
                     Err(e) => {
@@ -789,7 +862,7 @@ impl TextGeneration {
                         return Err(e.into());
                     }
                 };
-                
+
                 tracing::debug!("Streaming: About to call execute_with_fallback for iteration {} with start_pos {}", gen_index + 1, start_pos);
                 logits = match self.execute_with_fallback(&new_input, start_pos) {
                     Ok(result) => result,
@@ -798,7 +871,7 @@ impl TextGeneration {
                         return Err(e);
                     }
                 };
-                
+
                 logits = match logits.squeeze(0) {
                     Ok(result) => result,
                     Err(e) => {
@@ -806,7 +879,7 @@ impl TextGeneration {
                         return Err(e.into());
                     }
                 };
-                
+
                 logits = match logits.squeeze(0) {
                     Ok(result) => result,
                     Err(e) => {
@@ -814,7 +887,7 @@ impl TextGeneration {
                         return Err(e.into());
                     }
                 };
-                
+
                 logits = match logits.to_dtype(DType::F32) {
                     Ok(result) => result,
                     Err(e) => {
@@ -822,36 +895,42 @@ impl TextGeneration {
                         return Err(e.into());
                     }
                 };
-                
+
                 let forward_time = forward_start.elapsed();
                 forward_times.push(forward_time);
-                tracing::debug!("Streaming: Forward pass completed for iteration {}", gen_index + 1);
-                
+                tracing::debug!(
+                    "Streaming: Forward pass completed for iteration {}",
+                    gen_index + 1
+                );
+
                 let token_time = token_start.elapsed();
                 token_times.push(token_time);
-                
+
                 // Yield to allow other async tasks to run
                 tokio::task::yield_now().await;
             }
         } else {
             // Standard approach for other models
             tracing::debug!("Using standard generation approach (streaming)");
-            
+
             for index in 0..sample_len {
                 let token_start = std::time::Instant::now();
-                
+
                 // Use sliding window context instead of single token to preserve context and reduce repetition
-                let context_size = if index > 0 { 
+                let context_size = if index > 0 {
                     std::cmp::min(self.context_window_size, tokens.len())
-                } else { 
-                    tokens.len() 
+                } else {
+                    tokens.len()
                 };
                 let start_pos = tokens.len().saturating_sub(context_size);
                 let ctxt = &tokens[start_pos..];
-                
-                tracing::debug!("Standard model: Using sliding window context: {} tokens (from position {})", 
-                    ctxt.len(), start_pos);
-                
+
+                tracing::debug!(
+                    "Standard model: Using sliding window context: {} tokens (from position {})",
+                    ctxt.len(),
+                    start_pos
+                );
+
                 // Track tensor operations and model forward pass
                 let forward_start = std::time::Instant::now();
                 let input = Tensor::new(ctxt, &self.device)?.unsqueeze(0)?;
@@ -859,7 +938,7 @@ impl TextGeneration {
                 let logits = logits.squeeze(0)?.squeeze(0)?.to_dtype(DType::F32)?;
                 let forward_time = forward_start.elapsed();
                 forward_times.push(forward_time);
-                
+
                 // Apply repeat penalty using optimized cached implementation
                 let (logits, repeat_time) = self.apply_cached_repeat_penalty(logits, &tokens)?;
                 repeat_penalty_times.push(repeat_time);
@@ -869,7 +948,7 @@ impl TextGeneration {
                 let next_token = self.logits_processor.sample(&logits)?;
                 let sampling_time = sampling_start.elapsed();
                 sampling_times.push(sampling_time);
-                
+
                 tokens.push(next_token);
                 generated_tokens += 1;
                 if next_token == eos_token || next_token == eot_token {
@@ -880,17 +959,17 @@ impl TextGeneration {
                     // Call the streaming callback with this token
                     token_callback(&token_text)?;
                 }
-                
+
                 let token_time = token_start.elapsed();
                 token_times.push(token_time);
             }
         }
-        
+
         let dt = start_gen.elapsed();
-        
+
         // Phase 3: Final decoding
         let decode_start = std::time::Instant::now();
-        
+
         // Decode any remaining tokens but don't send through callback to avoid repetition
         // The tokens were already streamed individually in the generation loop above
         if let Some(rest) = self.tokenizer.decode_rest().map_err(E::msg)? {
@@ -898,19 +977,26 @@ impl TextGeneration {
             // Note: NOT calling token_callback(&rest) here to prevent token repetition
             // Individual tokens were already streamed via the callback in the generation loop
         }
-        
+
         let decode_time = decode_start.elapsed();
-        
+
         // Log performance metrics
         Self::log_performance_metrics(
-            dt, generated_tokens, &token_times, &forward_times, 
-            &repeat_penalty_times, &sampling_times, tokenize_time, 
-            decode_time, start_time, "Streaming"
+            dt,
+            generated_tokens,
+            &token_times,
+            &forward_times,
+            &repeat_penalty_times,
+            &sampling_times,
+            tokenize_time,
+            decode_time,
+            start_time,
+            "Streaming",
         );
-        
+
         Ok(full_output)
     }
-    
+
     // Helper function for logging performance metrics
     fn log_performance_metrics(
         generation_time: std::time::Duration,
@@ -930,72 +1016,87 @@ impl TextGeneration {
         } else {
             0.0
         };
-        
+
         // Calculate average time per token and component breakdown
         let avg_token_time = if !token_times.is_empty() {
             token_times.iter().sum::<std::time::Duration>() / token_times.len() as u32
         } else {
             std::time::Duration::from_secs(0)
         };
-        
+
         let avg_forward_time = if !forward_times.is_empty() {
             forward_times.iter().sum::<std::time::Duration>() / forward_times.len() as u32
         } else {
             std::time::Duration::from_secs(0)
         };
-        
+
         let avg_repeat_time = if !repeat_penalty_times.is_empty() {
-            repeat_penalty_times.iter().sum::<std::time::Duration>() / repeat_penalty_times.len() as u32
+            repeat_penalty_times.iter().sum::<std::time::Duration>()
+                / repeat_penalty_times.len() as u32
         } else {
             std::time::Duration::from_secs(0)
         };
-        
+
         let avg_sampling_time = if !sampling_times.is_empty() {
             sampling_times.iter().sum::<std::time::Duration>() / sampling_times.len() as u32
         } else {
             std::time::Duration::from_secs(0)
         };
-        
+
         // Record detailed performance metrics
-        tracing::info!("{} Text generation completed in {:.2?}", prefix, generation_time);
+        tracing::info!(
+            "{} Text generation completed in {:.2?}",
+            prefix,
+            generation_time
+        );
         tracing::info!("{} Tokens generated: {}", prefix, generated_tokens);
-        tracing::info!("{} Generation speed: {:.2} tokens/second", prefix, tokens_per_second);
+        tracing::info!(
+            "{} Generation speed: {:.2} tokens/second",
+            prefix,
+            tokens_per_second
+        );
         tracing::info!("{} Average time per token: {:.2?}", prefix, avg_token_time);
-        
+
         if !avg_token_time.is_zero() {
-            tracing::debug!("{}  - Forward pass: {:.2?} ({:.1}%)", 
+            tracing::debug!(
+                "{}  - Forward pass: {:.2?} ({:.1}%)",
                 prefix,
-                avg_forward_time, 
+                avg_forward_time,
                 avg_forward_time.as_secs_f64() / avg_token_time.as_secs_f64() * 100.0
             );
-            tracing::debug!("{}  - Repeat penalty: {:.2?} ({:.1}%)", 
+            tracing::debug!(
+                "{}  - Repeat penalty: {:.2?} ({:.1}%)",
                 prefix,
                 avg_repeat_time,
                 avg_repeat_time.as_secs_f64() / avg_token_time.as_secs_f64() * 100.0
             );
-            tracing::debug!("{}  - Sampling: {:.2?} ({:.1}%)", 
+            tracing::debug!(
+                "{}  - Sampling: {:.2?} ({:.1}%)",
                 prefix,
                 avg_sampling_time,
                 avg_sampling_time.as_secs_f64() / avg_token_time.as_secs_f64() * 100.0
             );
         }
-        
+
         // Log total request time
         let total_time = start_time.elapsed();
         tracing::info!("{} Total request time: {:.2?}", prefix, total_time);
-        
+
         if !total_time.is_zero() {
-            tracing::debug!("{}  - Tokenization: {:.2?} ({:.1}%)", 
+            tracing::debug!(
+                "{}  - Tokenization: {:.2?} ({:.1}%)",
                 prefix,
                 tokenize_time,
                 tokenize_time.as_secs_f64() / total_time.as_secs_f64() * 100.0
             );
-            tracing::debug!("{}  - Generation: {:.2?} ({:.1}%)", 
+            tracing::debug!(
+                "{}  - Generation: {:.2?} ({:.1}%)",
                 prefix,
                 generation_time,
                 generation_time.as_secs_f64() / total_time.as_secs_f64() * 100.0
             );
-            tracing::debug!("{}  - Final decoding: {:.2?} ({:.1}%)", 
+            tracing::debug!(
+                "{}  - Final decoding: {:.2?} ({:.1}%)",
                 prefix,
                 decode_time,
                 decode_time.as_secs_f64() / total_time.as_secs_f64() * 100.0

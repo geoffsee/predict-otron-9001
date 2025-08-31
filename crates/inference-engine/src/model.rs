@@ -1,8 +1,8 @@
 // use candle_core::Tensor;
+use candle_transformers::models::csm::{LlamaConfig, LlamaModel};
 use candle_transformers::models::gemma::{Config as Config1, Model as Model1};
 use candle_transformers::models::gemma2::{Config as Config2, Model as Model2};
 use candle_transformers::models::gemma3::{Config as Config3, Model as Model3};
-use candle_transformers::models::csm::{LlamaConfig, LlamaModel};
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq, clap::ValueEnum)]
 pub enum Which {
@@ -52,7 +52,11 @@ pub enum Model {
 }
 
 impl Model {
-    pub fn forward(&mut self, input_ids: &candle_core::Tensor, pos: usize) -> candle_core::Result<candle_core::Tensor> {
+    pub fn forward(
+        &mut self,
+        input_ids: &candle_core::Tensor,
+        pos: usize,
+    ) -> candle_core::Result<candle_core::Tensor> {
         match self {
             Self::V1(m) => m.forward(input_ids, pos),
             Self::V2(m) => m.forward(input_ids, pos),
@@ -88,7 +92,13 @@ impl Which {
 
     pub fn is_instruct_model(&self) -> bool {
         match self {
-            Self::Base2B | Self::Base7B | Self::CodeBase2B | Self::CodeBase7B | Self::BaseV2_2B | Self::BaseV2_9B | Self::BaseV3_1B => false,
+            Self::Base2B
+            | Self::Base7B
+            | Self::CodeBase2B
+            | Self::CodeBase7B
+            | Self::BaseV2_2B
+            | Self::BaseV2_9B
+            | Self::BaseV3_1B => false,
             _ => true,
         }
     }

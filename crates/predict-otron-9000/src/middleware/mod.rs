@@ -1,7 +1,3 @@
 pub mod metrics;
 
-pub use metrics::{
-    MetricsStore,
-    MetricsLoggerFuture,
-    MetricsLayer,
-};
+pub use metrics::{MetricsLayer, MetricsLoggerFuture, MetricsStore};

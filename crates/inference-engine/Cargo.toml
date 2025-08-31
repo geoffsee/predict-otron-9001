@@ -3,18 +3,6 @@ name = "inference-engine"
 version = "0.1.0"
 edition = "2021"
 
-
-[[bin]]
-name="gemma_inference"
-path = "src/gemma_inference.rs"
-required-features = ["bin"]
-
-[[bin]]
-name="llama_inference"
-path = "src/llama_inference.rs"
-required-features = ["bin"]
-
-
 [dependencies]
 accelerate-src = { version = "0.3.2", optional = true }
 candle-datasets = { version = "=0.9.1", optional = true }

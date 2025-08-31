@@ -4,10 +4,10 @@ extern crate accelerate_src;
 extern crate intel_mkl_src;
 
 use anyhow::{Error as E, Result};
-use clap::ValueEnum;
 use candle_transformers::models::gemma::{Config as Config1, Model as Model1};
 use candle_transformers::models::gemma2::{Config as Config2, Model as Model2};
 use candle_transformers::models::gemma3::{Config as Config3, Model as Model3};
+use clap::ValueEnum;
 
 // Removed gemma_cli import as it's not needed for the API
 use candle_core::{utils, DType, Device, Tensor};
@@ -119,7 +119,12 @@ impl TextGeneration {
 
     /// Stream-only generation: sends freshly generated token strings over `tx`.
     /// (Does not send the prompt tokens; only newly generated model tokens.)
-    fn run_stream(&mut self, prompt: &str, sample_len: usize, tx: Sender<Result<String>>) -> Result<()> {
+    fn run_stream(
+        &mut self,
+        prompt: &str,
+        sample_len: usize,
+        tx: Sender<Result<String>>,
+    ) -> Result<()> {
         self.tokenizer.clear();
 
         // Encode prompt (context only; do not emit prompt tokens to the stream).
@@ -303,7 +308,7 @@ pub fn run_gemma_api(cfg: GemmaInferenceConfig) -> Result<Receiver<Result<String
             WhichModel::BaseV3_1B => "google/gemma-3-1b-pt",
             WhichModel::InstructV3_1B => "google/gemma-3-1b-it",
         }
-            .to_string()
+        .to_string()
     });
 
     println!("Loading model: {}", &model_id);
@@ -337,7 +342,10 @@ pub fn run_gemma_api(cfg: GemmaInferenceConfig) -> Result<Receiver<Result<String
             let model = Model1::new(cfg.use_flash_attn, &config, vb)?;
             Model::V1(model)
         }
-        WhichModel::BaseV2_2B | WhichModel::InstructV2_2B | WhichModel::BaseV2_9B | WhichModel::InstructV2_9B => {
+        WhichModel::BaseV2_2B
+        | WhichModel::InstructV2_2B
+        | WhichModel::BaseV2_9B
+        | WhichModel::InstructV2_9B => {
             let config: Config2 = serde_json::from_reader(std::fs::File::open(config_filename)?)?;
             let model = Model2::new(cfg.use_flash_attn, &config, vb)?;
             Model::V2(model)

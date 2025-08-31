@@ -88,7 +88,6 @@ impl Into<LlamaInferenceConfig> for Args {
     }
 }
 
-
 pub fn run_cli() -> anyhow::Result<()> {
     let args = Args::parse();
     let cfg = args.into();

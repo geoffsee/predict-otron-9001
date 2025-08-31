@@ -84,7 +84,10 @@ fn main() -> Result<()> {
     let services = discover_services(workspace_path)?;
     println!("Found {} services:", services.len());
     for service in &services {
-        println!("  - {}: {} (port {})", service.name, service.image, service.port);
+        println!(
+            "  - {}: {} (port {})",
+            service.name, service.image, service.port
+        );
     }
 
     generate_helm_chart(output_path, chart_name, &services)?;
@@ -115,17 +118,20 @@ fn discover_services(workspace_path: &str) -> Result<Vec<ServiceInfo>> {
 fn parse_cargo_toml(path: &Path) -> Result<ServiceInfo> {
     let content = fs::read_to_string(path)
         .with_context(|| format!("Failed to read Cargo.toml at {:?}", path))?;
-    
+
     let cargo_toml: CargoToml = toml::from_str(&content)
         .with_context(|| format!("Failed to parse Cargo.toml at {:?}", path))?;
 
-    let package = cargo_toml.package
+    let package = cargo_toml
+        .package
         .ok_or_else(|| anyhow::anyhow!("No package section found in {:?}", path))?;
 
-    let metadata = package.metadata
+    let metadata = package
+        .metadata
         .ok_or_else(|| anyhow::anyhow!("No metadata section found in {:?}", path))?;
 
-    let kube_metadata = metadata.kube
+    let kube_metadata = metadata
+        .kube
         .ok_or_else(|| anyhow::anyhow!("No kube metadata found in {:?}", path))?;
 
     Ok(ServiceInfo {
@@ -136,7 +142,11 @@ fn parse_cargo_toml(path: &Path) -> Result<ServiceInfo> {
     })
 }
 
-fn generate_helm_chart(output_path: &str, chart_name: &str, services: &[ServiceInfo]) -> Result<()> {
+fn generate_helm_chart(
+    output_path: &str,
+    chart_name: &str,
+    services: &[ServiceInfo],
+) -> Result<()> {
     let chart_dir = Path::new(output_path);
     let templates_dir = chart_dir.join("templates");
 
