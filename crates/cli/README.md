@@ -3,7 +3,7 @@
 A Rust/Typescript Hybrid
 
 ```console
-./cli [options] [prompt]
+bun run cli.ts [options] [prompt]
 
 Simple CLI tool for testing the local OpenAI-compatible API server.
 
@@ -14,10 +14,11 @@ Options:
   --help              Show this help message
 
 Examples:
-  ./cli "What is the capital of France?"
-  ./cli --model gemma-3-1b-it --prompt "Hello, world!"
-  ./cli --prompt "Who was the 16th president of the United States?"
-  ./cli --list-models
+  cd crates/cli/package
+  bun run cli.ts "What is the capital of France?"
+  bun run cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
+  bun run cli.ts --prompt "Who was the 16th president of the United States?"
+  bun run cli.ts --list-models
 
 The server must be running at http://localhost:8080
 ```

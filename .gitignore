@@ -74,8 +74,6 @@ venv/
 # Backup files
 *.bak
 *.backup
-*~
-/scripts/cli
 !/scripts/cli.ts
 /**/.*.bun-build
 /AGENTS.md

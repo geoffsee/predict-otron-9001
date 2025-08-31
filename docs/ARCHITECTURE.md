@@ -52,7 +52,7 @@ graph TB
 
 ## Workspace Structure
 
-The project uses a 7-crate Rust workspace with TypeScript tooling, designed for maximum flexibility in deployment configurations.
+The project uses a 9-crate Rust workspace with TypeScript tooling, designed for maximum flexibility in deployment configurations.
 
 ```mermaid
 graph TD
@@ -69,16 +69,13 @@ graph TD
         end
         
         subgraph "Frontend"
-            D[leptos-app<br/>Edition: 2021<br/>Port: 3000/8788<br/>WASM/SSR]
+            D[chat-ui<br/>Edition: 2021<br/>Port: 8788<br/>WASM UI]
         end
         
         subgraph "Tooling"
             L[helm-chart-tool<br/>Edition: 2024<br/>K8s deployment]
+            E[cli<br/>Edition: 2024<br/>TypeScript/Bun CLI]
         end
-    end
-    
-    subgraph "External Tooling"
-        E[scripts/cli.ts<br/>TypeScript/Bun<br/>OpenAI SDK]
     end
     
     subgraph "Dependencies"
@@ -193,7 +190,7 @@ graph TB
         end
         
         subgraph "Frontend"
-            D[leptos-app Pod<br/>:8788<br/>ClusterIP Service]
+            D[chat-ui Pod<br/>:8788<br/>ClusterIP Service]
         end
         
         subgraph "Ingress"

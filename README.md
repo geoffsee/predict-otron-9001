@@ -42,7 +42,7 @@ The system supports both CPU and GPU acceleration (CUDA/Metal), with intelligent
 
 ### Workspace Structure
 
-The project uses a 7-crate Rust workspace plus TypeScript components:
+The project uses a 9-crate Rust workspace plus TypeScript components:
 
 ```
 crates/
@@ -51,17 +51,18 @@ crates/
 ├── gemma-runner/          # Gemma model inference via Candle (Rust 2021)
 ├── llama-runner/          # Llama model inference via Candle (Rust 2021)
 ├── embeddings-engine/     # FastEmbed embeddings service (Rust 2024)
-├── leptos-app/            # WASM web frontend (Rust 2021)
+├── chat-ui/               # WASM web frontend (Rust 2021)
 ├── helm-chart-tool/       # Kubernetes deployment tooling (Rust 2024)
-└── scripts/
-    └── cli.ts             # TypeScript/Bun CLI client
+└── cli/                   # CLI client crate (Rust 2024)
+    └── package/
+        └── cli.ts         # TypeScript/Bun CLI client
 ```
 
 ### Service Architecture
 
 - **Main Server** (port 8080): Orchestrates inference and embeddings services
 - **Embeddings Service** (port 8080): Standalone FastEmbed service with OpenAI API compatibility  
-- **Web Frontend** (port 8788): cargo leptos SSR app
+- **Web Frontend** (port 8788): chat-ui WASM app
 - **CLI Client**: TypeScript/Bun client for testing and automation
 
 ### Deployment Modes
@@ -144,26 +145,26 @@ cargo build --bin embeddings-engine --release
 
 #### Web Frontend (Port 8788)  
 ```bash
-cd crates/leptos-app
+cd crates/chat-ui
 ./run.sh
 ```
-- Serves Leptos WASM frontend on port 8788
+- Serves chat-ui WASM frontend on port 8788
 - Sets required RUSTFLAGS for WebAssembly getrandom support
 - Auto-reloads during development
 
 #### TypeScript CLI Client
 ```bash
 # List available models
-bun run scripts/cli.ts --list-models
+cd crates/cli/package && bun run cli.ts --list-models
 
 # Chat completion
-bun run scripts/cli.ts "What is the capital of France?"
+cd crates/cli/package && bun run cli.ts "What is the capital of France?"
 
 # With specific model
-bun run scripts/cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
+cd crates/cli/package && bun run cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
 
 # Show help
-bun run scripts/cli.ts --help
+cd crates/cli/package && bun run cli.ts --help
 ```
 
 ## API Usage
@@ -279,7 +280,7 @@ cargo test --workspace
 
 **End-to-end test script:**
 ```bash
-./smoke_test.sh
+./scripts/smoke_test.sh
 ```
 
 This script:
@@ -368,7 +369,7 @@ All services include Docker metadata in `Cargo.toml`:
 - Port: 8080
 
 **Web Frontend:**
-- Image: `ghcr.io/geoffsee/leptos-app:latest`
+- Image: `ghcr.io/geoffsee/chat-ui:latest`
 - Port: 8788
 
 **Docker Compose:**
@@ -427,7 +428,7 @@ For Kubernetes deployment details, see the [ARCHITECTURE.md](docs/ARCHITECTURE.m
 **Symptom:** WASM compilation failures  
 **Solution:**
 1. Install required targets: `rustup target add wasm32-unknown-unknown`
-2. Check RUSTFLAGS in leptos-app/run.sh
+2. Check RUSTFLAGS in chat-ui/run.sh
 
 ### Network/Timeout Issues
 **Symptom:** First-time model downloads timing out  
@@ -458,18 +459,18 @@ curl -s http://localhost:8080/v1/models | jq
 
 **CLI client test:**
 ```bash
-bun run scripts/cli.ts "What is 2+2?"
+cd crates/cli/package && bun run cli.ts "What is 2+2?"
 ```
 
 **Web frontend:**
 ```bash
-cd crates/leptos-app && ./run.sh &
+cd crates/chat-ui && ./run.sh &
 # Navigate to http://localhost:8788
 ```
 
 **Integration test:**
 ```bash
-./smoke_test.sh
+./scripts/smoke_test.sh
 ```
 
 **Cleanup:**
