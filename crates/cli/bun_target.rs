@@ -16,28 +16,29 @@ pub enum BunTarget {
 impl BunTarget {
     pub const fn as_bun_flag(self) -> &'static str {
         match self {
-            BunTarget::LinuxX64Glibc   => "bun-linux-x64",
+            BunTarget::LinuxX64Glibc => "bun-linux-x64",
             BunTarget::LinuxArm64Glibc => "bun-linux-arm64",
-            BunTarget::LinuxX64Musl    => "bun-linux-x64-musl",
-            BunTarget::LinuxArm64Musl  => "bun-linux-arm64-musl",
-            BunTarget::WindowsX64      => "bun-windows-x64",
-            BunTarget::WindowsArm64    => "bun-windows-arm64",
-            BunTarget::MacX64          => "bun-darwin-x64",
-            BunTarget::MacArm64        => "bun-darwin-arm64",
+            BunTarget::LinuxX64Musl => "bun-linux-x64-musl",
+            BunTarget::LinuxArm64Musl => "bun-linux-arm64-musl",
+            BunTarget::WindowsX64 => "bun-windows-x64",
+            BunTarget::WindowsArm64 => "bun-windows-arm64",
+            BunTarget::MacX64 => "bun-darwin-x64",
+            BunTarget::MacArm64 => "bun-darwin-arm64",
         }
     }
 
-
     pub const fn rust_triples(self) -> &'static [&'static str] {
         match self {
-            BunTarget::LinuxX64Glibc   => &["x86_64-unknown-linux-gnu", "x86_64-unknown-linux-gnu.2.17"],
+            BunTarget::LinuxX64Glibc => {
+                &["x86_64-unknown-linux-gnu", "x86_64-unknown-linux-gnu.2.17"]
+            }
             BunTarget::LinuxArm64Glibc => &["aarch64-unknown-linux-gnu"],
-            BunTarget::LinuxX64Musl    => &["x86_64-unknown-linux-musl"],
-            BunTarget::LinuxArm64Musl  => &["aarch64-unknown-linux-musl"],
-            BunTarget::WindowsX64      => &["x86_64-pc-windows-msvc"],
-            BunTarget::WindowsArm64    => &["aarch64-pc-windows-msvc"], // chart says unsupported; still map
-            BunTarget::MacX64          => &["x86_64-apple-darwin"],
-            BunTarget::MacArm64        => &["aarch64-apple-darwin"],
+            BunTarget::LinuxX64Musl => &["x86_64-unknown-linux-musl"],
+            BunTarget::LinuxArm64Musl => &["aarch64-unknown-linux-musl"],
+            BunTarget::WindowsX64 => &["x86_64-pc-windows-msvc"],
+            BunTarget::WindowsArm64 => &["aarch64-pc-windows-msvc"], // chart says unsupported; still map
+            BunTarget::MacX64 => &["x86_64-apple-darwin"],
+            BunTarget::MacArm64 => &["aarch64-apple-darwin"],
         }
     }
 
@@ -86,7 +87,6 @@ impl BunTarget {
         None
     }
 
-
     pub fn from_cargo_env() -> Result<Self, BunTargetError> {
         if let Ok(triple) = env::var("TARGET") {
             if let Some(bt) = Self::from_rust_target(&triple) {
@@ -95,12 +95,18 @@ impl BunTarget {
             return Err(BunTargetError::UnknownTriple(triple));
         }
 
-        let os  = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
+        let os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
         let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
         let envv = env::var("CARGO_CFG_TARGET_ENV").unwrap_or_default();
         let vendor = env::var("CARGO_CFG_TARGET_VENDOR").unwrap_or_else(|_| "unknown".into());
 
-        let triple = format!("{}-{}-{}-{}", arch, vendor, os, if envv.is_empty() { "gnu" } else { &envv });
+        let triple = format!(
+            "{}-{}-{}-{}",
+            arch,
+            vendor,
+            os,
+            if envv.is_empty() { "gnu" } else { &envv }
+        );
         if let Some(bt) = Self::from_rust_target(&triple) {
             Ok(bt)
         } else {

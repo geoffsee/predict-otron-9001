@@ -17,10 +17,6 @@ fn main() {
     }
 }
 
-
-
-
-
 fn run_build() -> io::Result<()> {
     let manifest_dir =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"));
@@ -33,7 +29,9 @@ fn run_build() -> io::Result<()> {
 
     // Optional: warn if using a Bun target that’s marked unsupported in your chart
     if matches!(bun_tgt, BunTarget::WindowsArm64) {
-        println!("cargo:warning=bun-windows-arm64 is marked unsupported in the compatibility chart");
+        println!(
+            "cargo:warning=bun-windows-arm64 is marked unsupported in the compatibility chart"
+        );
     }
 
     warn(&format!("Building CLI into: {}", output_path.display()));
@@ -63,9 +61,6 @@ fn run_build() -> io::Result<()> {
     }
 
     let target = env::var("TARGET").unwrap();
-
-
-
 
     // --- bun build (in ./package), emit to OUT_DIR, keep temps inside OUT_DIR ---
     let mut build = Command::new("bun")
