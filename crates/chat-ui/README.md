@@ -29,7 +29,7 @@ cd crates/chat-ui
 This starts the development server on port 8788 with auto-reload capabilities.
 
 ### Usage
-1. Start the predict-otron-9000 server: `./scripts/run_server.sh`
+1. Start the predict-otron-9000 server: `./scripts/run.sh`
 2. Start the chat-ui: `cd crates/chat-ui && ./run.sh`
 3. Navigate to `http://localhost:8788`
 4. Start chatting with your AI models!

@@ -4,27 +4,27 @@ mod middleware;
 mod standalone_mode;
 
 use crate::standalone_mode::create_standalone_router;
+use axum::handler::Handler;
+use axum::http::StatusCode as AxumStatusCode;
+use axum::http::header;
 use axum::response::IntoResponse;
 use axum::routing::get;
-use axum::{Router, http::Uri, response::Html, serve, ServiceExt};
+use axum::{Router, ServiceExt, http::Uri, response::Html, serve};
 use config::ServerConfig;
 use ha_mode::create_ha_router;
 use inference_engine::AppState;
+use log::info;
 use middleware::{MetricsLayer, MetricsLoggerFuture, MetricsStore};
+use mime_guess::from_path;
 use rust_embed::Embed;
 use std::env;
 use std::path::Component::ParentDir;
-use axum::handler::Handler;
-use axum::http::header;
-use mime_guess::from_path;
 use tokio::net::TcpListener;
 use tower::MakeService;
 use tower_http::classify::ServerErrorsFailureClass::StatusCode;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use axum::http::{StatusCode as AxumStatusCode };
-use log::info;
 
 #[derive(Embed)]
 #[folder = "../../target/site"]
@@ -33,7 +33,6 @@ use log::info;
 #[include = "*.css"]
 #[include = "*.ico"]
 struct Asset;
-
 
 async fn static_handler(uri: Uri) -> axum::response::Response {
     // Strip the leading `/`
@@ -49,17 +48,11 @@ async fn static_handler(uri: Uri) -> axum::response::Response {
             let body = content.data.into_owned();
             let mime = from_path(path).first_or_octet_stream();
 
-            (
-                [(header::CONTENT_TYPE, mime.as_ref())],
-                body,
-            )
-                .into_response()
+            ([(header::CONTENT_TYPE, mime.as_ref())], body).into_response()
         }
         None => (AxumStatusCode::NOT_FOUND, "404 Not Found").into_response(),
     }
 }
-
-
 
 #[tokio::main]
 async fn main() {
@@ -122,7 +115,6 @@ async fn main() {
 
     // Create the leptos router for the web frontend
     let leptos_router = chat_ui::app::create_router(leptos_config.config.leptos_options);
-
 
     // Merge the service router with base routes and add middleware layers
     let app = Router::new()

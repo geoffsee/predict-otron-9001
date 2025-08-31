@@ -893,7 +893,7 @@ checksum = "b94f61472cee1439c0b966b47e3aca9ae07e45d070759512cd390ea2bebc6675"
 
 [[package]]
 name = "cli"
-version = "0.1.2"
+version = "0.1.3"
 
 [[package]]
 name = "codee"
@@ -1471,7 +1471,7 @@ dependencies = [
 
 [[package]]
 name = "embeddings-engine"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "async-openai",
  "axum",
@@ -2093,7 +2093,7 @@ dependencies = [
 
 [[package]]
 name = "gemma-runner"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "candle-core 0.9.1 (git+https://github.com/huggingface/candle.git)",
@@ -2274,7 +2274,7 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
 name = "helm-chart-tool"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "clap",
@@ -2684,7 +2684,7 @@ dependencies = [
 
 [[package]]
 name = "inference-engine"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "ab_glyph",
  "anyhow",
@@ -3177,7 +3177,7 @@ checksum = "241eaef5fd12c88705a01fc1066c48c4b36e0dd4377dcdc7ec3942cea7a69956"
 
 [[package]]
 name = "llama-runner"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "candle-core 0.9.1 (git+https://github.com/huggingface/candle.git)",
@@ -4056,7 +4056,7 @@ dependencies = [
 
 [[package]]
 name = "predict-otron-9000"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "axum",
  "chat-ui",

@@ -12,7 +12,6 @@ pub struct AppConfig {
 
 impl Default for AppConfig {
     fn default() -> Self {
-
         let conf = get_configuration(Some(concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.toml")))
             .expect("failed to read config");
 
@@ -41,6 +40,7 @@ pub fn create_router(leptos_options: LeptosOptions) -> Router {
         .with_state(leptos_options)
 }
 
+use gloo_net::http::Request;
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
@@ -48,7 +48,6 @@ use leptos_router::{
     StaticSegment,
 };
 use serde::{Deserialize, Serialize};
-use gloo_net::http::Request;
 use web_sys::console;
 // Remove spawn_local import as we'll use different approach
 
@@ -122,7 +121,10 @@ pub async fn fetch_models() -> Result<Vec<ModelInfo>, String> {
 }
 
 // API client function to send chat completion requests
-pub async fn send_chat_completion(messages: Vec<ChatMessage>, model: String) -> Result<String, String> {
+pub async fn send_chat_completion(
+    messages: Vec<ChatMessage>,
+    model: String,
+) -> Result<String, String> {
     let request = ChatRequest {
         model,
         messages,
@@ -206,20 +208,20 @@ pub fn App() -> impl IntoView {
 fn ChatPage() -> impl IntoView {
     // State for conversation messages
     let messages = RwSignal::new(Vec::<ChatMessage>::new());
-    
+
     // State for current user input
     let input_text = RwSignal::new(String::new());
-    
+
     // State for loading indicator
     let is_loading = RwSignal::new(false);
-    
+
     // State for error messages
     let error_message = RwSignal::new(Option::<String>::None);
-    
+
     // State for available models and selected model
     let available_models = RwSignal::new(Vec::<ModelInfo>::new());
     let selected_model = RwSignal::new(String::from("gemma-3-1b-it")); // Default model
-    
+
     // Client-side only: Fetch models on component mount
     #[cfg(target_arch = "wasm32")]
     {
@@ -249,7 +251,7 @@ fn ChatPage() -> impl IntoView {
             role: "user".to_string(),
             content: user_input.clone(),
         };
-        
+
         messages.update(|msgs| msgs.push(user_message.clone()));
         input_text.set(String::new());
         is_loading.set(true);
@@ -259,11 +261,11 @@ fn ChatPage() -> impl IntoView {
         #[cfg(target_arch = "wasm32")]
         {
             use leptos::task::spawn_local;
-            
+
             // Prepare messages for API call
             let current_messages = messages.get();
             let current_model = selected_model.get();
-            
+
             // Spawn async task to call API
             spawn_local(async move {
                 match send_chat_completion(current_messages, current_model).await {
@@ -307,7 +309,7 @@ fn ChatPage() -> impl IntoView {
                 <h1>"Predict-Otron-9000 Chat"</h1>
                 <div class="model-selector">
                     <label for="model-select">"Model:"</label>
-                    <select 
+                    <select
                         id="model-select"
                         prop:value=move || selected_model.get()
                         on:change=move |ev| {
@@ -329,7 +331,7 @@ fn ChatPage() -> impl IntoView {
                     </select>
                 </div>
             </div>
-            
+
             <div class="chat-messages">
                 <For
                     each=move || messages.get().into_iter().enumerate()
@@ -344,7 +346,7 @@ fn ChatPage() -> impl IntoView {
                         }
                     }
                 />
-                
+
                 {move || {
                     if is_loading.get() {
                         view! {
@@ -379,7 +381,7 @@ fn ChatPage() -> impl IntoView {
                     on:keydown=on_key_down
                     class:disabled=move || is_loading.get()
                 />
-                <button 
+                <button
                     on:click=on_button_click
                     class:disabled=move || is_loading.get() || input_text.get().trim().is_empty()
                 >

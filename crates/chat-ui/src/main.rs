@@ -1,14 +1,11 @@
-
-
-
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
     use axum::Router;
+    use chat_ui::app::*;
     use leptos::logging::log;
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use chat_ui::app::*;
 
     let conf = get_configuration(None).expect("failed to read config");
     let addr = conf.leptos_options.site_addr;
