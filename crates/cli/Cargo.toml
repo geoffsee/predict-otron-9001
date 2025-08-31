@@ -1,0 +1,11 @@
+[package]
+name = "cli"
+version.workspace = true
+edition = "2021"
+build = "build.rs"
+
+[[bin]]
+name = "cli"
+path = "src/main.rs"
+
+[dependencies]

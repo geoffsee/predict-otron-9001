@@ -1,16 +1,16 @@
 mod config;
+mod ha_mode;
 mod middleware;
-mod proxy;
-mod standalone;
+mod standalone_mode;
 
-use crate::standalone::create_standalone_router;
+use crate::standalone_mode::create_standalone_router;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::{Router, http::Uri, response::Html, serve};
 use config::ServerConfig;
+use ha_mode::create_ha_router;
 use inference_engine::AppState;
 use middleware::{MetricsLayer, MetricsLoggerFuture, MetricsStore};
-use proxy::create_proxy_router;
 use rust_embed::Embed;
 use std::env;
 use std::path::Component::ParentDir;
@@ -56,7 +56,7 @@ async fn main() {
         Ok(is_ha) => {
             if is_ha {
                 log_config(server_config.clone());
-                create_proxy_router(server_config.clone())
+                create_ha_router(server_config.clone())
             } else {
                 log_config(server_config.clone());
                 create_standalone_router(server_config)

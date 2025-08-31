@@ -1,6 +1,6 @@
 [package]
 name = "predict-otron-9000"
-version = "0.1.1"
+version.workspace = true
 edition = "2024"
 
 [[bin]]
@@ -44,4 +44,8 @@ port = 8080
 image = "ghcr.io/geoffsee/predict-otron-9000:latest"
 replicas = 1
 port = 8080
-env = { SERVER_CONFIG = "" }
+# SERVER_CONFIG Example: {\"serverMode\":\"HighAvailability\",\"services\":{\"inference_url\":\"http://custom-inference:9000\",\"embeddings_url\":\"http://custom-embeddings:9001\"}}
+# you can generate this via node to avoid toil
+# const server_config = {serverMode: "HighAvailability", services: {inference_url: "http://custom-inference:9000", embeddings_url: "http://custom-embeddings:9001"} };
+# console.log(JSON.stringify(server_config).replace(/"/g, '\\"'));
+env = { SERVER_CONFIG = "<your-json-value-here>" }

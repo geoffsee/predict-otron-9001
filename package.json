@@ -1,8 +1,8 @@
 {
-  "dependencies": {
-    "openai": "^5.16.0"
-  },
+  "name": "predict-otron-9000",
+  "workspaces": ["crates/cli/package"],
   "scripts": {
-    "cli": "./scripts/cli.ts"
+    "# WORKSPACE ALIASES": "#",
+    "cli": "bun --filter crates/cli/package"
   }
 }

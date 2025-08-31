@@ -12,6 +12,120 @@ use std::time::Duration;
 
 use crate::config::ServerConfig;
 
+/// # Generating `SERVER_CONFIG` for TOML using Node.js
+///
+/// You can still use the Node.js REPL to build the JSON, but when pasting into
+/// a `.toml` file you must follow TOML's string rules. Below are the safest patterns.
+///
+/// ## 1) Generate the JSON in Node
+/// ```bash
+/// node
+/// ```
+/// ```javascript
+/// const myobject = {
+///   serverMode: "HighAvailability",
+///   services: {
+///     inference_url: "http://custom-inference:9000",
+///     embeddings_url: "http://custom-embeddings:9001"
+///   }
+/// };
+/// const json = JSON.stringify(myobject);
+/// json
+/// // -> '{"serverMode":"HighAvailability","services":{"inference_url":"http://custom-inference:9000","embeddings_url":"http://custom-embeddings:9001"}}'
+/// ```
+///
+/// ## 2) Put it into `.toml`
+///
+/// ### Option A (recommended): single-quoted TOML *literal* string
+/// Single quotes in TOML mean "no escaping", so your inner double quotes are safe.
+/// ```toml
+/// SERVER_CONFIG = '{"serverMode":"HighAvailability","services":{"inference_url":"http://custom-inference:9000","embeddings_url":"http://custom-embeddings:9001"}}'
+/// ```
+///
+/// ### Option B: double-quoted TOML string (must escape inner quotes)
+/// If you *must* use double quotes in TOML, escape all `"` inside the JSON.
+/// You can have Node do this for you:
+/// ```javascript
+/// // In Node:
+/// const jsonForToml = JSON.stringify(myobject).replace(/"/g, '\\"');
+/// jsonForToml
+/// // -> \"{\\\"serverMode\\\":\\\"HighAvailability\\\",...}\"
+/// ```
+/// Then paste into TOML:
+/// ```toml
+/// SERVER_CONFIG = "{\"serverMode\":\"HighAvailability\",\"services\":{\"inference_url\":\"http://custom-inference:9000\",\"embeddings_url\":\"http://custom-embeddings:9001\"}}"
+/// ```
+///
+/// ### Option C: multi-line literal (for pretty JSON)
+/// If you want pretty-printed JSON in the file, use TOML's triple single quotes:
+/// ```javascript
+/// // In Node (pretty with 2 spaces):
+/// const pretty = JSON.stringify(myobject, null, 2);
+/// ```
+/// ```toml
+/// SERVER_CONFIG = '''{
+///   "serverMode": "HighAvailability",
+///   "services": {
+///     "inference_url": "http://custom-inference:9000",
+///     "embeddings_url": "http://custom-embeddings:9001"
+///   }
+/// }'''
+/// ```
+///
+/// ## 3) Reading it in Rust
+///
+/// If `SERVER_CONFIG` is stored as a **string** in TOML (Options A/B/C):
+/// ```rust
+/// use serde_json::Value;
+///
+/// // Suppose you've already loaded your .toml into a struct or a toml::Value:
+/// // e.g., struct FileCfg { pub SERVER_CONFIG: String }
+/// fn parse_server_config(raw: &str) -> anyhow::Result<Value> {
+///     let v: Value = serde_json::from_str(raw)?;
+///     Ok(v)
+/// }
+/// ```
+///
+/// ### Alternative: store it as TOML tables and serialize to JSON at runtime
+/// Instead of a JSON string, you can make the TOML first-class tables:
+/// ```toml
+/// [SERVER_CONFIG]
+/// serverMode = "HighAvailability"
+///
+/// [SERVER_CONFIG.services]
+/// inference_url = "http://custom-inference:9000"
+/// embeddings_url = "http://custom-embeddings:9001"
+/// ```
+/// ```rust
+/// use serde::{Deserialize, Serialize};
+/// use serde_json::Value;
+///
+/// #[derive(Debug, Serialize, Deserialize)]
+/// struct Services {
+///     inference_url: String,
+///     embeddings_url: String,
+/// }
+///
+/// #[derive(Debug, Serialize, Deserialize)]
+/// struct ServerConfig {
+///     serverMode: String,
+///     services: Services,
+/// }
+///
+/// // After loading the .toml (e.g., via `toml::from_str`):
+/// // let cfg: ServerConfig = toml::from_str(toml_str)?;
+/// // Convert to JSON if needed:
+/// fn to_json(cfg: &ServerConfig) -> serde_json::Result<Value> {
+///     Ok(serde_json::to_value(cfg)?)
+/// }
+/// ```
+///
+/// ## Gotchas
+/// - Prefer **single-quoted** TOML strings for raw JSON to avoid escaping.
+/// - If you use **double-quoted** TOML strings, escape every inner `"` in the JSON.
+/// - Pretty JSON is fine in TOML using `''' ... '''`, but remember the newlines are part of the string.
+/// - If you control the consumer, TOML tables (the alternative above) are more ergonomic than embedding JSON.
+
 /// HTTP client configured for proxying requests
 #[derive(Clone)]
 pub struct ProxyClient {
@@ -31,7 +145,7 @@ impl ProxyClient {
 }
 
 /// Create a router that proxies requests to external services in HighAvailability mode
-pub fn create_proxy_router(config: ServerConfig) -> Router {
+pub fn create_ha_router(config: ServerConfig) -> Router {
     let proxy_client = ProxyClient::new(config.clone());
 
     Router::new()

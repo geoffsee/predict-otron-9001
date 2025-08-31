@@ -6,10 +6,14 @@ members = [
     "crates/leptos-app",
     "crates/helm-chart-tool",
     "crates/llama-runner",
-    "crates/gemma-runner"
+    "crates/gemma-runner",
+    "crates/cli"
 ]
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"
+
+[workspace.package]
+version = "0.1.2"
 
 # Compiler optimization profiles for the workspace
 [profile.release]

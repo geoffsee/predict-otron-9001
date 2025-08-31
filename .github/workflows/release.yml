@@ -34,6 +34,9 @@ jobs:
       - name: Setup Rust
         run: rustup update stable && rustup default stable
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Install clippy and rustfmt
         run: rustup component add clippy rustfmt
 
@@ -132,7 +135,7 @@ jobs:
         run: rustup target add ${{ matrix.target }}
 
       - name: Build binary
-        run: cargo build --release --target ${{ matrix.target }} -p predict-otron-9000
+        run: cargo build --release --target ${{ matrix.target }} -p predict-otron-9000 -p cli
         env:
           CARGO_TERM_COLOR: always
 
@@ -140,14 +143,14 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          tar czf ../../../${{ matrix.name }}.tar.gz predict-otron-9000
+          tar czf ../../../${{ matrix.name }}.tar.gz predict-otron-9000 cli
           cd ../../../
 
       - name: Package binary (Windows)
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../${{ matrix.name }}.zip predict-otron-9000.exe
+          7z a ../../../${{ matrix.name }}.zip predict-otron-9000.exe cli.exe
           cd ../../../
 
       - name: Upload binary artifacts (Unix)

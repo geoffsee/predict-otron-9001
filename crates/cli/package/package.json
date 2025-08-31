@@ -1,0 +1,11 @@
+{
+  "name": "cli",
+  "main": "cli.ts",
+  "scripts": {
+    "build": "bun build cli.ts --compile --outfile cli"
+  },
+  "dependencies": {
+    "install": "^0.13.0",
+    "openai": "^5.16.0"
+  }
+}

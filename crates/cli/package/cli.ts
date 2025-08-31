@@ -30,24 +30,23 @@ type ChunkStat = {
 
 function printHelp() {
     console.log(`
-Usage: bun client_cli.ts [options] [prompt]
+./cli [options] [prompt]
 
 Simple CLI tool for testing the local OpenAI-compatible API server.
 
 Options:
-  --model <model>     Model to use (default: ${DEFAULT_MODEL})
+  --model <model>     Model to use (default: gemma-3-1b-it)
   --prompt <prompt>   The prompt to send (can also be provided as positional argument)
   --list-models       List all available models from the server
   --help              Show this help message
 
 Examples:
-  ./cli.ts "What is the capital of France?"
-  ./cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
-  ./cli.ts --prompt "Who was the 16th president of the United States?"
-  ./cli.ts --list-models
+  ./cli "What is the capital of France?"
+  ./cli --model gemma-3-1b-it --prompt "Hello, world!"
+  ./cli --prompt "Who was the 16th president of the United States?"
+  ./cli --list-models
 
-The server should be running at http://localhost:8080
-Start it with: ./run_server.sh
+The server must be running at http://localhost:8080
 `);
 }
 

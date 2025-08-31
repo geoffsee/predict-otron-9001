@@ -2,7 +2,10 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use tracing::info;
 use tracing::log::error;
-
+/// # Generating `SERVER_CONFIG` with Node
+// # const server_config = {serverMode: "HighAvailability", services: {inference_url: "http://custom-inference:9000", embeddings_url: "http://custom-embeddings:9001"} };
+// # console.log(JSON.stringify(server_config).replace(/"/g, '\\"'));
+///
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ServerConfig {
