@@ -134,7 +134,12 @@ jobs:
       - name: Add target
         run: rustup target add ${{ matrix.target }}
 
-      - name: Build binary
+      - name: Build UI
+        run: cargo install --locked cargo-leptos && cd crates/chat-ui && cargo leptos build --release
+        env:
+          CARGO_TERM_COLOR: always
+
+      - name: Build Binary
         run: cargo build --release --target ${{ matrix.target }} -p predict-otron-9000 -p cli
         env:
           CARGO_TERM_COLOR: always

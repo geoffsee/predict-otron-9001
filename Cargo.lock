@@ -827,12 +827,17 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "console_error_panic_hook",
+ "gloo-net",
  "leptos",
  "leptos_axum",
  "leptos_meta",
  "leptos_router",
+ "reqwest",
+ "serde",
+ "serde_json",
  "tokio",
  "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
