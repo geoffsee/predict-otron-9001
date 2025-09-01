@@ -27,6 +27,16 @@ jobs:
       - name: Setup Rust
         run: rustup update stable && rustup default stable
 
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Build
+        run:  | 
+          cargo install --locked cargo-leptos
+          cd crates/chat-ui && cargo leptos build --release 
+          cargo build --release -p predict-otron-9000 -p cli
+
       - name: Install clippy and rustfmt
         run: rustup component add clippy rustfmt
 
