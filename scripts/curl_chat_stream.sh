@@ -15,7 +15,7 @@ CONNECT_TIMEOUT=${CONNECT_TIMEOUT:-10}
 MAX_TIME=${MAX_TIME:-30}
 
 cat <<EOF
-[info] POST $SERVER_URL/v1/chat/completions/stream (SSE)
+[info] POST $SERVER_URL/v1/chat/completions (SSE)
 [info] model=$MODEL_ID, max_tokens=$MAX_TOKENS
 [info] prompt=$PROMPT
 [info] timeouts: connect=${CONNECT_TIMEOUT}s, max=${MAX_TIME}s

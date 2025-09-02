@@ -42,6 +42,7 @@ body {
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        flex-wrap: wrap;
         
         label {
             font-weight: 500;
@@ -67,6 +68,24 @@ body {
             
             option {
                 padding: 0.5rem;
+            }
+        }
+        
+        .streaming-toggle {
+            display: flex;
+            align-items: center;
+            margin-left: 1rem;
+            
+            label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                cursor: pointer;
+                font-size: 0.9rem;
+                
+                input[type="checkbox"] {
+                    cursor: pointer;
+                }
             }
         }
     }
@@ -132,6 +151,16 @@ body {
             .message-content {
                 font-style: italic;
                 color: #6b7280;
+            }
+        }
+        
+        &.streaming {
+            .message-content {
+                .cursor {
+                    display: inline-block;
+                    animation: blink 1s infinite;
+                    color: #9ca3af;
+                }
             }
         }
     }
@@ -223,4 +252,14 @@ body {
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+}
+
+/* Cursor blink animation */
+@keyframes blink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0;
+    }
 }

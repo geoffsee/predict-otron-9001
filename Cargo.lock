@@ -893,6 +893,7 @@ dependencies = [
  "axum",
  "console_error_panic_hook",
  "gloo-net",
+ "js-sys",
  "leptos",
  "leptos_axum",
  "leptos_meta",
@@ -902,6 +903,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
 ]
 
