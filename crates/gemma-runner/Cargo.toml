@@ -10,15 +10,15 @@ edition = "2021"
 candle-core = { git = "https://github.com/huggingface/candle.git" }
 candle-nn = { git = "https://github.com/huggingface/candle.git" }
 candle-transformers = { git = "https://github.com/huggingface/candle.git" }
-candle-examples = { git = "https://github.com/huggingface/candle.git" }
 hf-hub = "0.4"
-tokenizers = "0.21"
+tokenizers = "0.22.0"
 anyhow = "1.0"
 clap = { version = "4.0", features = ["derive", "string"] }
 serde_json = "1.0"
 tracing = "0.1"
 tracing-chrome = "0.7"
 tracing-subscriber = "0.3"
+utils = {path = "../utils"}
 
 [target.'cfg(target_os = "macos")'.dependencies]
 candle-core = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }

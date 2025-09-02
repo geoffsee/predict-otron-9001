@@ -8,7 +8,7 @@ members = [
     "crates/gemma-runner",
     "crates/cli",
     "crates/chat-ui"
-]
+, "crates/utils"]
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"
 

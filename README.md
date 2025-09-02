@@ -17,6 +17,11 @@ Stability is currently best effort. Many models require unique configuration. Wh
 A comprehensive multi-service AI platform built around local LLM inference, embeddings, and web interfaces.
 
 
+~~~shell
+./scripts/run.sh
+~~~
+
+
 ## Project Overview
 
 The predict-otron-9000 is a flexible AI platform that provides:
