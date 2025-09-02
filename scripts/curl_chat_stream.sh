@@ -35,7 +35,7 @@ curl -N -sS -X POST \
   --connect-timeout "$CONNECT_TIMEOUT" \
   --max-time "$MAX_TIME" \
   -H "Content-Type: application/json" \
-  "$SERVER_URL/v1/chat/completions/stream" \
+  "$SERVER_URL/v1/chat/completions" \
   -d @- <<JSON
 {
   "model": "${MODEL_ID}",
