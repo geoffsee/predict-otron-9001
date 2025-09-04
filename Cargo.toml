@@ -13,7 +13,7 @@ default-members = ["crates/predict-otron-9000"]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.5"
+version = "0.1.6"
 
 # Compiler optimization profiles for the workspace
 [profile.release]
