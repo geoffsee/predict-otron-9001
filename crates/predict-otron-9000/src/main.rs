@@ -4,27 +4,32 @@ mod middleware;
 mod standalone_mode;
 
 use crate::standalone_mode::create_standalone_router;
-use axum::http::StatusCode as AxumStatusCode;
-use axum::http::header;
-use axum::response::IntoResponse;
 use axum::routing::get;
-use axum::{Router, http::Uri, response::Html, serve};
+use axum::{Router, serve};
 use config::ServerConfig;
 use ha_mode::create_ha_router;
-use inference_engine::AppState;
-use log::info;
 use middleware::{MetricsLayer, MetricsLoggerFuture, MetricsStore};
-use mime_guess::from_path;
-use rust_embed::Embed;
 use std::env;
-use std::path::Component::ParentDir;
+
+#[cfg(feature = "ui")]
+use axum::http::StatusCode as AxumStatusCode;
+#[cfg(feature = "ui")]
+use axum::http::header;
+#[cfg(feature = "ui")]
+use axum::response::IntoResponse;
+#[cfg(feature = "ui")]
+use axum::http::Uri;
+#[cfg(feature = "ui")]
+use mime_guess::from_path;
+#[cfg(feature = "ui")]
+use rust_embed::Embed;
 use tokio::net::TcpListener;
-use tower::MakeService;
-use tower_http::classify::ServerErrorsFailureClass::StatusCode;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+
+#[cfg(feature = "ui")]
 #[derive(Embed)]
 #[folder = "../../target/site"]
 #[include = "*.js"]
@@ -33,6 +38,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 #[include = "*.ico"]
 struct Asset;
 
+#[cfg(feature = "ui")]
 async fn static_handler(uri: Uri) -> axum::response::Response {
     // Strip the leading `/`
     let path = uri.path().trim_start_matches('/');
@@ -110,17 +116,22 @@ async fn main() {
     // Create metrics layer
     let metrics_layer = MetricsLayer::new(metrics_store);
 
-    let leptos_config = chat_ui::app::AppConfig::default();
-
-    // Create the leptos router for the web frontend
-    let leptos_router = chat_ui::app::create_router(leptos_config.config.leptos_options);
-
     // Merge the service router with base routes and add middleware layers
-    let app = Router::new()
-        .route("/pkg/{*path}", get(static_handler))
+    let mut app = Router::new()
         .route("/health", get(|| async { "ok" }))
-        .merge(service_router)
-        .merge(leptos_router)
+        .merge(service_router);
+
+    // Add UI routes if the UI feature is enabled
+    #[cfg(feature = "ui")]
+    {
+        let leptos_config = chat_ui::app::AppConfig::default();
+        let leptos_router = chat_ui::app::create_router(leptos_config.config.leptos_options);
+        app = app
+            .route("/pkg/{*path}", get(static_handler))
+            .merge(leptos_router);
+    }
+
+    let app = app
         .layer(metrics_layer) // Add metrics tracking
         .layer(cors)
         .layer(TraceLayer::new_for_http());
@@ -141,6 +152,7 @@ async fn main() {
     );
     tracing::info!("Performance metrics tracking enabled - summary logs every 60 seconds");
     tracing::info!("Available endpoints:");
+    #[cfg(feature = "ui")]
     tracing::info!("  GET  / - Leptos chat web application");
     tracing::info!("  GET  /health - Health check");
     tracing::info!("  POST /v1/models - List Models");

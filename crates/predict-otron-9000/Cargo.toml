@@ -29,7 +29,7 @@ inference-engine = { path = "../inference-engine" }
 
 # Dependencies for leptos web app
 #leptos-app = { path = "../leptos-app", features = ["ssr"] }
-chat-ui = { path = "../chat-ui", features = ["ssr", "hydrate"], optional = false }
+chat-ui = { path = "../chat-ui", features = ["ssr", "hydrate"], optional = true }
 
 mime_guess = "2.0.5"
 log = "0.4.27"
@@ -39,15 +39,20 @@ log = "0.4.27"
 name = "predict-otron-9000"
 image = "ghcr.io/geoffsee/predict-otron-9000:latest"
 port = 8080
-
+cmd = ["./bin/predict-otron-9000"]
 
 # generates kubernetes manifests
 [package.metadata.kube]
 image = "ghcr.io/geoffsee/predict-otron-9000:latest"
 replicas = 1
 port = 8080
+cmd = ["./bin/predict-otron-9000"]
 # SERVER_CONFIG Example: {\"serverMode\":\"HighAvailability\",\"services\":{\"inference_url\":\"http://custom-inference:9000\",\"embeddings_url\":\"http://custom-embeddings:9001\"}}
 # you can generate this via node to avoid toil
 # const server_config = {serverMode: "HighAvailability", services: {inference_url: "http://custom-inference:9000", embeddings_url: "http://custom-embeddings:9001"} };
 # console.log(JSON.stringify(server_config).replace(/"/g, '\\"'));
 env = { SERVER_CONFIG = "<your-json-value-here>" }
+
+[features]
+default = ["ui"]
+ui = ["dep:chat-ui"]

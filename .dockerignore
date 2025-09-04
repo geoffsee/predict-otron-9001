@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Rust
+target/
+
+# Documentation
+README.md
+*.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+.fastembed_cache

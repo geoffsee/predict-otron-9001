@@ -1,7 +1,7 @@
 [package]
 name = "inference-engine"
 version.workspace = true
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 candle-core = { git = "https://github.com/huggingface/candle.git" }
@@ -31,14 +31,21 @@ utoipa = { version = "4.2.0", features = ["axum_extras"] }
 uuid = { version = "1.7.0", features = ["v4"] }
 reborrow = "0.5.5"
 futures-util = "0.3.31"
-gemma-runner = { path = "../../integration/gemma-runner", features = ["metal"] }
-llama-runner = { path = "../../integration/llama-runner", features = ["metal"]}
+gemma-runner = { path = "../../integration/gemma-runner" }
+llama-runner = { path = "../../integration/llama-runner" }
 embeddings-engine = { path = "../embeddings-engine" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+candle-core = { git = "https://github.com/huggingface/candle.git", default-features = false }
+candle-nn = { git = "https://github.com/huggingface/candle.git", default-features = false }
+candle-transformers = { git = "https://github.com/huggingface/candle.git", default-features = false }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 candle-core = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }
 candle-nn = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }
 candle-transformers = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }
+gemma-runner = { path = "../../integration/gemma-runner", features = ["metal"] }
+llama-runner = { path = "../../integration/llama-runner", features = ["metal"] }
 
 
 [dev-dependencies]
@@ -62,15 +69,19 @@ bindgen_cuda = { version = "0.1.1", optional = true }
 [features]
 bin = []
 
+[[bin]]
+name = "inference-engine"
+path = "src/main.rs"
 
 
 [package.metadata.compose]
-image = "ghcr.io/geoffsee/inference-engine:latest"
+image = "ghcr.io/geoffsee/predict-otron-9000:latest"
+cmd = ["./bin/inference-engine"]
 port = 8080
-
 
 # generates kubernetes manifests
 [package.metadata.kube]
-image = "ghcr.io/geoffsee/inference-service:latest"
-replicas = 1
+image = "ghcr.io/geoffsee/predict-otron-9000:latest"
+cmd = ["./bin/inference-engine"]
 port = 8080
+replicas = 1
