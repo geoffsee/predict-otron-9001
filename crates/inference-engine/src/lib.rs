@@ -8,7 +8,7 @@ pub mod server;
 // Re-export key components for easier access
 pub use inference::ModelInference;
 pub use model::{Model, Which};
-pub use server::{create_router, AppState};
+pub use server::{AppState, create_router};
 
 use std::env;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};

@@ -28,7 +28,6 @@ struct KubeMetadata {
     port: u16,
 }
 
-
 #[derive(Debug, Clone)]
 struct ServiceInfo {
     name: String,

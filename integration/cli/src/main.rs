@@ -25,7 +25,7 @@ fn main() -> io::Result<()> {
     // Run it
     let status = Command::new(&tmp).arg("--version").status()?;
     if !status.success() {
-        return Err(io::Error::new(io::ErrorKind::Other, "client-cli failed"));
+        return Err(io::Error::other("client-cli failed"));
     }
 
     Ok(())

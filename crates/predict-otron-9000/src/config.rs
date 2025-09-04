@@ -45,8 +45,6 @@ pub struct Services {
     pub embeddings_url: Option<String>,
 }
 
-
-
 impl Default for ServerConfig {
     fn default() -> Self {
         Self {

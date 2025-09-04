@@ -124,10 +124,7 @@ pub fn hub_load_safetensors(
     }
     let safetensors_files = safetensors_files
         .iter()
-        .map(|v| {
-            repo.get(v)
-                .map_err(|e| std::io::Error::other(e))
-        })
+        .map(|v| repo.get(v).map_err(std::io::Error::other))
         .collect::<Result<Vec<_>, std::io::Error>>()?;
     Ok(safetensors_files)
 }

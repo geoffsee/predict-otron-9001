@@ -1,10 +1,5 @@
 use async_openai::types::{CreateEmbeddingRequest, EmbeddingInput};
-use axum::{
-    Json, Router,
-    http::StatusCode,
-    response::Json as ResponseJson,
-    routing::post,
-};
+use axum::{Json, Router, http::StatusCode, response::Json as ResponseJson, routing::post};
 use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
 use once_cell::sync::Lazy;
 use serde::Serialize;

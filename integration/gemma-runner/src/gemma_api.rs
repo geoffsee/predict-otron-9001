@@ -205,7 +205,7 @@ impl TextGeneration {
 
         let start_gen = std::time::Instant::now();
 
-        for (_generated_tokens, index) in (0..sample_len).enumerate() {
+        for index in 0..sample_len {
             let context_size = if index > 0 { 1 } else { tokens.len() };
             let start_pos = tokens.len().saturating_sub(context_size);
             let ctxt = &tokens[start_pos..];

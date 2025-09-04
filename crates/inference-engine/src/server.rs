@@ -1,28 +1,28 @@
 use axum::{
+    Json, Router,
     extract::State,
     http::StatusCode,
-    response::{sse::Event, sse::Sse, IntoResponse},
+    response::{IntoResponse, sse::Event, sse::Sse},
     routing::{get, post},
-    Json, Router,
 };
 use futures_util::stream::{self, Stream};
 use std::convert::Infallible;
 use std::str::FromStr;
 use std::sync::Arc;
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::{Mutex, mpsc};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use tower_http::cors::{Any, CorsLayer};
 use uuid::Uuid;
 
+use crate::Which;
 use crate::openai_types::{
     ChatCompletionChoice, ChatCompletionChunk, ChatCompletionChunkChoice, ChatCompletionRequest,
     ChatCompletionResponse, Delta, Message, MessageContent, Model, ModelListResponse, Usage,
 };
-use crate::Which;
 use either::Either;
 use embeddings_engine::models_list;
-use gemma_runner::{run_gemma_api, GemmaInferenceConfig, WhichModel};
-use llama_runner::{run_llama_inference, LlamaInferenceConfig};
+use gemma_runner::{GemmaInferenceConfig, WhichModel, run_gemma_api};
+use llama_runner::{LlamaInferenceConfig, run_llama_inference};
 use serde_json::Value;
 // -------------------------
 // Shared app state

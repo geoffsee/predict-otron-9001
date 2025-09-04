@@ -14,11 +14,11 @@ use std::env;
 #[cfg(feature = "ui")]
 use axum::http::StatusCode as AxumStatusCode;
 #[cfg(feature = "ui")]
+use axum::http::Uri;
+#[cfg(feature = "ui")]
 use axum::http::header;
 #[cfg(feature = "ui")]
 use axum::response::IntoResponse;
-#[cfg(feature = "ui")]
-use axum::http::Uri;
 #[cfg(feature = "ui")]
 use mime_guess::from_path;
 #[cfg(feature = "ui")]
@@ -27,7 +27,6 @@ use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-
 
 #[cfg(feature = "ui")]
 #[derive(Embed)]
