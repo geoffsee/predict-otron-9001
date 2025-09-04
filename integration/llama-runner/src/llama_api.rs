@@ -57,6 +57,27 @@ pub struct LlamaInferenceConfig {
     pub repeat_last_n: usize,
 }
 
+impl LlamaInferenceConfig {
+    pub fn new(model: WhichModel) -> Self {
+        Self {
+            prompt: String::new(),
+            model,
+            cpu: false,
+            temperature: 1.0,
+            top_p: None,
+            top_k: None,
+            seed: 42,
+            max_tokens: 512,
+            no_kv_cache: false,
+            dtype: None,
+            model_id: None,
+            revision: None,
+            use_flash_attn: true,
+            repeat_penalty: 1.1,
+            repeat_last_n: 64,
+        }
+    }
+}
 impl Default for LlamaInferenceConfig {
     fn default() -> Self {
         Self {

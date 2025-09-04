@@ -365,7 +365,7 @@ fn ChatPage() -> impl IntoView {
 
     // State for available models and selected model
     let available_models = RwSignal::new(Vec::<ModelInfo>::new());
-    let selected_model = RwSignal::new(String::from("gemma-3-1b-it")); // Default model
+    let selected_model = RwSignal::new(String::from("")); // Default model
     
     // State for streaming response
     let streaming_content = RwSignal::new(String::new());
@@ -382,6 +382,7 @@ fn ChatPage() -> impl IntoView {
             match fetch_models().await {
                 Ok(models) => {
                     available_models.set(models);
+                    selected_model.set(String::from("gemma-3-1b-it"));
                 }
                 Err(error) => {
                     console::log_1(&format!("Failed to fetch models: {}", error).into());
