@@ -18,12 +18,10 @@ async fn embeddings_create(
 ) -> Result<ResponseJson<serde_json::Value>, axum::response::Response> {
     match embeddings_engine::embeddings_create(Json(payload)).await {
         Ok(response) => Ok(response),
-        Err((status_code, message)) => {
-            Err(axum::response::Response::builder()
-                .status(status_code)
-                .body(axum::body::Body::from(message))
-                .unwrap())
-        }
+        Err((status_code, message)) => Err(axum::response::Response::builder()
+            .status(status_code)
+            .body(axum::body::Body::from(message))
+            .unwrap()),
     }
 }
 

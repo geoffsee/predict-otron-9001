@@ -194,57 +194,57 @@ pub fn send_chat_completion_stream(
 ) {
     use wasm_bindgen::prelude::*;
     use wasm_bindgen::JsCast;
-    
+
     let request = ChatRequest {
         model,
         messages,
         max_tokens: Some(1024),
         stream: Some(true),
     };
-    
+
     // We need to send a POST request but EventSource only supports GET
     // So we'll use fetch with a readable stream instead
     let window = web_sys::window().unwrap();
     let request_json = serde_json::to_string(&request).unwrap();
-    
+
     let opts = web_sys::RequestInit::new();
     opts.set_method("POST");
     opts.set_body(&JsValue::from_str(&request_json));
-    
+
     let headers = web_sys::Headers::new().unwrap();
     headers.set("Content-Type", "application/json").unwrap();
     headers.set("Accept", "text/event-stream").unwrap();
     opts.set_headers(&headers);
-    
+
     let request = web_sys::Request::new_with_str_and_init("/v1/chat/completions", &opts).unwrap();
-    
+
     let promise = window.fetch_with_request(&request);
-    
+
     wasm_bindgen_futures::spawn_local(async move {
         match wasm_bindgen_futures::JsFuture::from(promise).await {
             Ok(resp_value) => {
                 let resp: web_sys::Response = resp_value.dyn_into().unwrap();
-                
+
                 if !resp.ok() {
                     on_error(format!("Server error: {}", resp.status()));
                     return;
                 }
-                
+
                 let body = resp.body();
                 if body.is_none() {
                     on_error("No response body".to_string());
                     return;
                 }
-                
+
                 let reader = body
                     .unwrap()
                     .get_reader()
                     .dyn_into::<web_sys::ReadableStreamDefaultReader>()
                     .unwrap();
-                
+
                 let decoder = web_sys::TextDecoder::new().unwrap();
                 let mut buffer = String::new();
-                
+
                 loop {
                     match wasm_bindgen_futures::JsFuture::from(reader.read()).await {
                         Ok(result) => {
@@ -252,24 +252,25 @@ pub fn send_chat_completion_stream(
                                 .unwrap()
                                 .as_bool()
                                 .unwrap_or(false);
-                            
+
                             if done {
                                 break;
                             }
-                            
-                            let value = js_sys::Reflect::get(&result, &JsValue::from_str("value")).unwrap();
+
+                            let value =
+                                js_sys::Reflect::get(&result, &JsValue::from_str("value")).unwrap();
                             let array = js_sys::Uint8Array::new(&value);
                             let mut bytes = vec![0; array.length() as usize];
                             array.copy_to(&mut bytes);
                             let text = decoder.decode_with_u8_array(&bytes).unwrap();
-                            
+
                             buffer.push_str(&text);
-                            
+
                             // Process complete SSE events from buffer
                             while let Some(event_end) = buffer.find("\n\n") {
                                 let event = buffer[..event_end].to_string();
                                 buffer = buffer[event_end + 2..].to_string();
-                                
+
                                 // Parse SSE event
                                 for line in event.lines() {
                                     if let Some(data) = line.strip_prefix("data: ") {
@@ -277,9 +278,11 @@ pub fn send_chat_completion_stream(
                                             on_complete();
                                             return;
                                         }
-                                        
+
                                         // Parse JSON chunk
-                                        if let Ok(chunk) = serde_json::from_str::<StreamChatResponse>(data) {
+                                        if let Ok(chunk) =
+                                            serde_json::from_str::<StreamChatResponse>(data)
+                                        {
                                             if let Some(choice) = chunk.choices.first() {
                                                 if let Some(content) = &choice.delta.content {
                                                     on_chunk(content.clone());
@@ -296,7 +299,7 @@ pub fn send_chat_completion_stream(
                         }
                     }
                 }
-                
+
                 on_complete();
             }
             Err(e) => {
@@ -366,11 +369,11 @@ fn ChatPage() -> impl IntoView {
     // State for available models and selected model
     let available_models = RwSignal::new(Vec::<ModelInfo>::new());
     let selected_model = RwSignal::new(String::from("")); // Default model
-    
+
     // State for streaming response
     let streaming_content = RwSignal::new(String::new());
     let is_streaming = RwSignal::new(false);
-    
+
     // State for streaming mode toggle
     let use_streaming = RwSignal::new(true); // Default to streaming
 
@@ -424,7 +427,7 @@ fn ChatPage() -> impl IntoView {
                 // Clear streaming content and set streaming flag
                 streaming_content.set(String::new());
                 is_streaming.set(true);
-                
+
                 // Use streaming API
                 send_chat_completion_stream(
                     current_messages,

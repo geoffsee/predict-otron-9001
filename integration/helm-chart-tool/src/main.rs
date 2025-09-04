@@ -105,7 +105,9 @@ fn discover_services(workspace_path: &str) -> Result<Vec<ServiceInfo>> {
         .into_iter()
         .filter_map(|e| e.ok())
     {
-        if entry.file_name() == "Cargo.toml" && entry.path() != workspace_root.join("../../../Cargo.toml") {
+        if entry.file_name() == "Cargo.toml"
+            && entry.path() != workspace_root.join("../../../Cargo.toml")
+        {
             if let Ok(service_info) = parse_cargo_toml(entry.path()) {
                 services.push(service_info);
             }

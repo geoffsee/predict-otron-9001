@@ -42,7 +42,11 @@ pub struct ModelMeta {
 }
 
 const fn m(id: &'static str, family: Family, instruct: bool) -> ModelMeta {
-    ModelMeta { id, family, instruct }
+    ModelMeta {
+        id,
+        family,
+        instruct,
+    }
 }
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq, clap::ValueEnum)]

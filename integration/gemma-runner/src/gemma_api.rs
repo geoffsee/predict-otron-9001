@@ -1,4 +1,3 @@
-
 use anyhow::{Error as E, Result};
 use candle_transformers::models::gemma::{Config as Config1, Model as Model1};
 use candle_transformers::models::gemma2::{Config as Config2, Model as Model2};
@@ -11,13 +10,13 @@ use candle_transformers::generation::LogitsProcessor;
 use hf_hub::{api::sync::Api, Repo, RepoType};
 use std::io::Write;
 
+use std::fmt;
+use std::str::FromStr;
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 use tokenizers::Tokenizer;
 use utils::hub_load_safetensors;
 use utils::token_output_stream::TokenOutputStream;
-use std::str::FromStr;
-use std::fmt;
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq, clap::ValueEnum)]
 pub enum WhichModel {
@@ -367,7 +366,9 @@ pub fn run_gemma_api(cfg: GemmaInferenceConfig) -> Result<Receiver<Result<String
     let tokenizer_filename = repo.get("tokenizer.json")?;
     let config_filename = repo.get("config.json")?;
     let filenames = match cfg.model {
-        Some(WhichModel::BaseV3_1B) | Some(WhichModel::InstructV3_1B) => vec![repo.get("model.safetensors")?],
+        Some(WhichModel::BaseV3_1B) | Some(WhichModel::InstructV3_1B) => {
+            vec![repo.get("model.safetensors")?]
+        }
         _ => hub_load_safetensors(&repo, "model.safetensors.index.json")?,
     };
     println!("Retrieved files in {:?}", start.elapsed());
@@ -396,7 +397,8 @@ pub fn run_gemma_api(cfg: GemmaInferenceConfig) -> Result<Receiver<Result<String
         | Some(WhichModel::InstructV2_2B)
         | Some(WhichModel::BaseV2_9B)
         | Some(WhichModel::InstructV2_9B)
-        | None => { // default to V2 model
+        | None => {
+            // default to V2 model
             let config: Config2 = serde_json::from_reader(std::fs::File::open(config_filename)?)?;
             let model = Model2::new(cfg.use_flash_attn, &config, vb)?;
             Model::V2(model)

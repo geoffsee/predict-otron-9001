@@ -8,8 +8,10 @@ pub mod coco_classes;
 pub mod imagenet;
 pub mod token_output_stream;
 pub mod wav;
-use candle_core::{Device, Tensor, utils::{cuda_is_available, metal_is_available}};
-
+use candle_core::{
+    utils::{cuda_is_available, metal_is_available},
+    Device, Tensor,
+};
 
 pub fn device(cpu: bool) -> Result<Device, anyhow::Error> {
     if cpu {
@@ -126,7 +128,7 @@ pub fn hub_load_safetensors(
             repo.get(v)
                 .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
         })
-        .collect::<Result<Vec<_>, std::io::Error, >>()?;
+        .collect::<Result<Vec<_>, std::io::Error>>()?;
     Ok(safetensors_files)
 }
 
@@ -136,7 +138,8 @@ pub fn hub_load_local_safetensors<P: AsRef<std::path::Path>>(
 ) -> Result<Vec<std::path::PathBuf>, anyhow::Error> {
     let path = path.as_ref();
     let jsfile = std::fs::File::open(path.join(json_file))?;
-    let json: serde_json::Value = serde_json::from_reader(&jsfile).map_err(candle_core::Error::wrap)?;
+    let json: serde_json::Value =
+        serde_json::from_reader(&jsfile).map_err(candle_core::Error::wrap)?;
     let weight_map = match json.get("weight_map") {
         None => anyhow::bail!("no weight map in {json_file:?}"),
         Some(serde_json::Value::Object(map)) => map,

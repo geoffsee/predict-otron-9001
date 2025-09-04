@@ -102,7 +102,7 @@ impl Default for LlamaInferenceConfig {
             max_tokens: 512,
 
             // Performance flags
-            no_kv_cache: false,   // keep cache ON for speed
+            no_kv_cache: false,    // keep cache ON for speed
             use_flash_attn: false, // great speed boost if supported
 
             // Precision: bf16 is a good default on Ampere+; fallback to fp16 if needed.
