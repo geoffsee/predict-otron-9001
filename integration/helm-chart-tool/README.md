@@ -64,13 +64,8 @@ version = "0.1.0"
 
 # Required: Kubernetes metadata
 [package.metadata.kube]
-image = "ghcr.io/myorg/my-service:latest"
+image = "ghcr.io/geoffsee/predict-otron-9000:latest"
 replicas = 1
-port = 8080
-
-# Optional: Docker Compose metadata (currently not used but parsed)
-[package.metadata.compose]
-image = "ghcr.io/myorg/my-service:latest"
 port = 8080
 ```
 

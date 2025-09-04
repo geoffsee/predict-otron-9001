@@ -1,9 +1,8 @@
 use anyhow::{Context, Result};
 use clap::{Arg, Command};
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use serde::Deserialize;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use walkdir::WalkDir;
 
 #[derive(Debug, Deserialize)]
@@ -20,7 +19,6 @@ struct Package {
 #[derive(Debug, Deserialize)]
 struct Metadata {
     kube: Option<KubeMetadata>,
-    compose: Option<ComposeMetadata>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -30,11 +28,6 @@ struct KubeMetadata {
     port: u16,
 }
 
-#[derive(Debug, Deserialize)]
-struct ComposeMetadata {
-    image: Option<String>,
-    port: Option<u16>,
-}
 
 #[derive(Debug, Clone)]
 struct ServiceInfo {
@@ -377,7 +370,7 @@ spec:
     Ok(())
 }
 
-fn generate_ingress_template(templates_dir: &Path, services: &[ServiceInfo]) -> Result<()> {
+fn generate_ingress_template(templates_dir: &Path, _services: &[ServiceInfo]) -> Result<()> {
     let ingress_template = r#"{{- if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress

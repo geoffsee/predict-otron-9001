@@ -73,12 +73,6 @@ bin = []
 name = "inference-engine"
 path = "src/main.rs"
 
-
-[package.metadata.compose]
-image = "ghcr.io/geoffsee/predict-otron-9000:latest"
-cmd = ["./bin/inference-engine"]
-port = 8080
-
 # generates kubernetes manifests
 [package.metadata.kube]
 image = "ghcr.io/geoffsee/predict-otron-9000:latest"

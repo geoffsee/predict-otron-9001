@@ -34,13 +34,6 @@ chat-ui = { path = "../chat-ui", features = ["ssr", "hydrate"], optional = true 
 mime_guess = "2.0.5"
 log = "0.4.27"
 
-
-[package.metadata.compose]
-name = "predict-otron-9000"
-image = "ghcr.io/geoffsee/predict-otron-9000:latest"
-port = 8080
-cmd = ["./bin/predict-otron-9000"]
-
 # generates kubernetes manifests
 [package.metadata.kube]
 image = "ghcr.io/geoffsee/predict-otron-9000:latest"

@@ -25,13 +25,6 @@ rand = "0.8.5"
 async-openai = "0.28.3"
 once_cell = "1.19.0"
 
-
-
-[package.metadata.compose]
-image = "ghcr.io/geoffsee/predict-otron-9000:latest"
-port = 8080
-cmd = ["./bin/embeddings-engine"]
-
 # generates kubernetes manifests
 [package.metadata.kube]
 image = "ghcr.io/geoffsee/predict-otron-9000:latest"
