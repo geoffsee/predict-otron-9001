@@ -4,12 +4,11 @@ mod middleware;
 mod standalone_mode;
 
 use crate::standalone_mode::create_standalone_router;
-use axum::handler::Handler;
 use axum::http::StatusCode as AxumStatusCode;
 use axum::http::header;
 use axum::response::IntoResponse;
 use axum::routing::get;
-use axum::{Router, ServiceExt, http::Uri, response::Html, serve};
+use axum::{Router, http::Uri, response::Html, serve};
 use config::ServerConfig;
 use ha_mode::create_ha_router;
 use inference_engine::AppState;
@@ -127,7 +126,7 @@ async fn main() {
         .layer(TraceLayer::new_for_http());
 
     // Server configuration
-    let server_host = env::var("SERVER_HOST").unwrap_or_else(|_| String::from(default_host));
+    let server_host = env::var("SERVER_HOST").unwrap_or_else(|_| default_host.to_string());
 
     let server_port = env::var("SERVER_PORT")
         .map(|v| v.parse::<u16>().unwrap_or(default_port))

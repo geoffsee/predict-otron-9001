@@ -67,7 +67,7 @@ pub fn run_cli() -> anyhow::Result<()> {
     let cfg = GemmaInferenceConfig {
         tracing: args.tracing,
         prompt: args.prompt,
-        model: args.model,
+        model: Some(args.model),
         cpu: args.cpu,
         dtype: args.dtype,
         model_id: args.model_id,

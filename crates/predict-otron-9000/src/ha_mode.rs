@@ -126,7 +126,7 @@ use crate::config::ServerConfig;
 /// - Pretty JSON is fine in TOML using `''' ... '''`, but remember the newlines are part of the string.
 /// - If you control the consumer, TOML tables (the alternative above) are more ergonomic than embedding JSON.
 
-/// HTTP client configured for proxying requests
+///   HTTP client configured for proxying requests
 #[derive(Clone)]
 pub struct ProxyClient {
     client: Client,

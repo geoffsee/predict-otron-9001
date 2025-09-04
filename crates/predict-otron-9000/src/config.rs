@@ -39,28 +39,13 @@ impl Default for ServerMode {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Services {
     pub inference_url: Option<String>,
     pub embeddings_url: Option<String>,
 }
 
-impl Default for Services {
-    fn default() -> Self {
-        Self {
-            inference_url: None,
-            embeddings_url: None,
-        }
-    }
-}
 
-fn inference_service_url() -> String {
-    "http://inference-service:8080".to_string()
-}
-
-fn embeddings_service_url() -> String {
-    "http://embeddings-service:8080".to_string()
-}
 
 impl Default for ServerConfig {
     fn default() -> Self {
@@ -118,8 +103,7 @@ impl ServerConfig {
                     "HighAvailability mode configured but services not well defined! \n## Config Used:\n {}",
                     config_string
                 );
-                let err = std::io::Error::new(
-                    std::io::ErrorKind::Other,
+                let err = std::io::Error::other(
                     "HighAvailability mode configured but services not well defined!",
                 );
                 return Err(err);

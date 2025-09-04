@@ -2,7 +2,7 @@ use crate::config::ServerConfig;
 use axum::Router;
 use inference_engine::AppState;
 
-pub fn create_standalone_router(server_config: ServerConfig) -> Router {
+pub fn create_standalone_router(_server_config: ServerConfig) -> Router {
     // Create unified router by merging embeddings and inference routers (existing behavior)
     let embeddings_router = embeddings_engine::create_embeddings_router();
 

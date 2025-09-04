@@ -3,7 +3,7 @@ use axum::{
     Json, Router,
     http::StatusCode,
     response::Json as ResponseJson,
-    routing::{get, post},
+    routing::post,
 };
 use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
 use once_cell::sync::Lazy;
@@ -11,7 +11,6 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use tower_http::trace::TraceLayer;
-use tracing;
 
 // Cache for multiple embedding models
 static MODEL_CACHE: Lazy<RwLock<HashMap<EmbeddingModel, Arc<TextEmbedding>>>> =

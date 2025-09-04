@@ -191,8 +191,6 @@ impl TextGeneration {
         // Make sure stdout isn't holding anything (if caller also prints).
         std::io::stdout().flush()?;
 
-        let mut _generated_tokens = 0usize;
-
         let eos_token = match self.tokenizer.get_token("<eos>") {
             Some(token) => token,
             None => anyhow::bail!("cannot find the <eos> token"),
@@ -207,7 +205,7 @@ impl TextGeneration {
 
         let start_gen = std::time::Instant::now();
 
-        for index in 0..sample_len {
+        for (_generated_tokens, index) in (0..sample_len).enumerate() {
             let context_size = if index > 0 { 1 } else { tokens.len() };
             let start_pos = tokens.len().saturating_sub(context_size);
             let ctxt = &tokens[start_pos..];
@@ -229,7 +227,6 @@ impl TextGeneration {
 
             let next_token = self.logits_processor.sample(&logits)?;
             tokens.push(next_token);
-            _generated_tokens += 1;
 
             if next_token == eos_token || next_token == eot_token {
                 break;

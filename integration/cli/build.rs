@@ -25,7 +25,7 @@ fn run_build() -> io::Result<()> {
     let output_path = out_dir.join("client-cli");
 
     let bun_tgt = BunTarget::from_cargo_env()
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        .map_err(|e| io::Error::other(e.to_string()))?;
 
     // Optional: warn if using a Bun target that’s marked unsupported in your chart
     if matches!(bun_tgt, BunTarget::WindowsArm64) {
@@ -54,13 +54,12 @@ fn run_build() -> io::Result<()> {
 
     if !install_status.success() {
         let code = install_status.code().unwrap_or(1);
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
+        return Err(io::Error::other(
             format!("bun install failed with status {code}"),
         ));
     }
 
-    let target = env::var("TARGET").unwrap();
+    let _target = env::var("TARGET").unwrap();
 
     // --- bun build (in ./package), emit to OUT_DIR, keep temps inside OUT_DIR ---
     let mut build = Command::new("bun")
@@ -87,7 +86,7 @@ fn run_build() -> io::Result<()> {
     } else {
         let code = status.code().unwrap_or(1);
         warn(&format!("bun build failed with status: {code}"));
-        return Err(io::Error::new(io::ErrorKind::Other, "bun build failed"));
+        return Err(io::Error::other("bun build failed"));
     }
 
     // Ensure the output is executable (after it exists)
