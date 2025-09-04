@@ -53,14 +53,17 @@ The project uses a 9-crate Rust workspace plus TypeScript components:
 crates/
 ├── predict-otron-9000/     # Main orchestration server (Rust 2024)
 ├── inference-engine/       # Multi-model inference orchestrator (Rust 2021)
+├── embeddings-engine/     # FastEmbed embeddings service (Rust 2024)
+└── chat-ui/               # WASM web frontend (Rust 2021)
+
+integration/
+├── cli/                   # CLI client crate (Rust 2024)
+│   └── package/
+│       └── cli.ts         # TypeScript/Bun CLI client
 ├── gemma-runner/          # Gemma model inference via Candle (Rust 2021)
 ├── llama-runner/          # Llama model inference via Candle (Rust 2021)
-├── embeddings-engine/     # FastEmbed embeddings service (Rust 2024)
-├── chat-ui/               # WASM web frontend (Rust 2021)
 ├── helm-chart-tool/       # Kubernetes deployment tooling (Rust 2024)
-└── cli/                   # CLI client crate (Rust 2024)
-    └── package/
-        └── cli.ts         # TypeScript/Bun CLI client
+└── utils/                 # Shared utilities (Rust 2021)
 ```
 
 ### Service Architecture
@@ -160,16 +163,16 @@ cd crates/chat-ui
 #### TypeScript CLI Client
 ```bash
 # List available models
-cd crates/cli/package && bun run cli.ts --list-models
+cd integration/cli/package && bun run cli.ts --list-models
 
 # Chat completion
-cd crates/cli/package && bun run cli.ts "What is the capital of France?"
+cd integration/cli/package && bun run cli.ts "What is the capital of France?"
 
 # With specific model
-cd crates/cli/package && bun run cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
+cd integration/cli/package && bun run cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
 
 # Show help
-cd crates/cli/package && bun run cli.ts --help
+cd integration/cli/package && bun run cli.ts --help
 ```
 
 ## API Usage
@@ -464,7 +467,7 @@ curl -s http://localhost:8080/v1/models | jq
 
 **CLI client test:**
 ```bash
-cd crates/cli/package && bun run cli.ts "What is 2+2?"
+cd integration/cli/package && bun run cli.ts "What is 2+2?"
 ```
 
 **Web frontend:**

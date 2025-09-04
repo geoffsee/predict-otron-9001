@@ -14,7 +14,7 @@ Options:
   --help              Show this help message
 
 Examples:
-  cd crates/cli/package
+  cd integration/cli/package
   bun run cli.ts "What is the capital of France?"
   bun run cli.ts --model gemma-3-1b-it --prompt "Hello, world!"
   bun run cli.ts --prompt "Who was the 16th president of the United States?"

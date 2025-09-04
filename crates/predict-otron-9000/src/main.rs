@@ -144,6 +144,7 @@ async fn main() {
     tracing::info!("Available endpoints:");
     tracing::info!("  GET  / - Leptos chat web application");
     tracing::info!("  GET  /health - Health check");
+    tracing::info!("  POST /v1/models - List Models");
     tracing::info!("  POST /v1/embeddings - Text embeddings API");
     tracing::info!("  POST /v1/chat/completions - Chat completions API");
 

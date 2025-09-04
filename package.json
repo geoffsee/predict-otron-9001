@@ -1,8 +1,8 @@
 {
   "name": "predict-otron-9000",
-  "workspaces": ["crates/cli/package"],
+  "workspaces": ["integration/cli/package"],
   "scripts": {
     "# WORKSPACE ALIASES": "#",
-    "cli": "bun --filter crates/cli/package"
+    "cli": "bun --filter integration/cli/package"
   }
 }

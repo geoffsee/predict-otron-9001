@@ -61,20 +61,22 @@ graph TD
             A[predict-otron-9000<br/>Edition: 2024<br/>Port: 8080]
         end
         
-        subgraph "AI Services"
+        subgraph "AI Services (crates/)"
             B[inference-engine<br/>Edition: 2021<br/>Port: 8080<br/>Multi-model orchestrator]
-            J[gemma-runner<br/>Edition: 2021<br/>Gemma via Candle]
-            K[llama-runner<br/>Edition: 2021<br/>Llama via Candle]
             C[embeddings-engine<br/>Edition: 2024<br/>Port: 8080<br/>FastEmbed]
         end
         
-        subgraph "Frontend"
+        subgraph "Frontend (crates/)"
             D[chat-ui<br/>Edition: 2021<br/>Port: 8788<br/>WASM UI]
         end
         
-        subgraph "Tooling"
+        
+        subgraph "Integration Tools (integration/)"
             L[helm-chart-tool<br/>Edition: 2024<br/>K8s deployment]
             E[cli<br/>Edition: 2024<br/>TypeScript/Bun CLI]
+            M[gemma-runner<br/>Edition: 2021<br/>Gemma via Candle]
+            N[llama-runner<br/>Edition: 2021<br/>Llama via Candle]
+            O[utils<br/>Edition: 2021<br/>Shared utilities]
         end
     end
     
@@ -82,10 +84,10 @@ graph TD
         A --> B
         A --> C
         A --> D
-        B --> J
-        B --> K
-        J -.-> F[Candle 0.9.1]
-        K -.-> F
+        B --> M
+        B --> N
+        M -.-> F[Candle 0.9.1]
+        N -.-> F
         C -.-> G[FastEmbed 4.x]
         D -.-> H[Leptos 0.8.0]
         E -.-> I[OpenAI SDK 5.16+]
@@ -93,12 +95,13 @@ graph TD
     
     style A fill:#e1f5fe
     style B fill:#f3e5f5
-    style J fill:#f3e5f5
-    style K fill:#f3e5f5
     style C fill:#e8f5e8
     style D fill:#fff3e0
     style E fill:#fce4ec
     style L fill:#fff9c4
+    style M fill:#f3e5f5
+    style N fill:#f3e5f5
+    style O fill:#fff9c4
 ```
 
 ## Deployment Configurations

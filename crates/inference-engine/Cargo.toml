@@ -31,8 +31,9 @@ utoipa = { version = "4.2.0", features = ["axum_extras"] }
 uuid = { version = "1.7.0", features = ["v4"] }
 reborrow = "0.5.5"
 futures-util = "0.3.31"
-gemma-runner = { path = "../gemma-runner", features = ["metal"] }
-llama-runner = { path = "../llama-runner", features = ["metal"]}
+gemma-runner = { path = "../../integration/gemma-runner", features = ["metal"] }
+llama-runner = { path = "../../integration/llama-runner", features = ["metal"]}
+embeddings-engine = { path = "../embeddings-engine" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 candle-core = { git = "https://github.com/huggingface/candle.git", features = ["metal"] }

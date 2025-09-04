@@ -3,12 +3,12 @@ members = [
     "crates/predict-otron-9000",
     "crates/inference-engine",
     "crates/embeddings-engine",
-    "crates/helm-chart-tool",
-    "crates/llama-runner",
-    "crates/gemma-runner",
-    "crates/cli",
+    "integration/helm-chart-tool",
+    "integration/llama-runner",
+    "integration/gemma-runner",
+    "integration/cli",
     "crates/chat-ui"
-, "crates/utils"]
+, "integration/utils"]
 default-members = ["crates/predict-otron-9000"]
 resolver = "2"
 

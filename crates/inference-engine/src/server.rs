@@ -19,6 +19,7 @@ use crate::openai_types::{
 };
 use crate::Which;
 use either::Either;
+use embeddings_engine::models_list;
 use gemma_runner::{run_gemma_api, GemmaInferenceConfig};
 use llama_runner::{run_llama_inference, LlamaInferenceConfig};
 use serde_json::Value;
@@ -530,7 +531,9 @@ pub async fn list_models() -> Json<ModelListResponse> {
         Which::Llama32_3BInstruct,
     ];
 
-    let models: Vec<Model> = which_variants.into_iter().map(|which| {
+
+
+    let mut models: Vec<Model> = which_variants.into_iter().map(|which| {
         let meta = which.meta();
         let model_id = match which {
             Which::Base2B => "gemma-2b",
@@ -566,10 +569,24 @@ pub async fn list_models() -> Json<ModelListResponse> {
         Model {
             id: model_id.to_string(),
             object: "model".to_string(),
-            created: 1686935002, // Using same timestamp as OpenAI example
+            created: 1686935002,
             owned_by: owned_by.to_string(),
         }
     }).collect();
+
+    // Get embeddings models and convert them to inference Model format
+    let embeddings_response = models_list().await;
+    let embeddings_models: Vec<Model> = embeddings_response.0.data.into_iter().map(|embedding_model| {
+        Model {
+            id: embedding_model.id,
+            object: embedding_model.object,
+            created: 1686935002,
+            owned_by: format!("{} - {}", embedding_model.owned_by, embedding_model.description),
+        }
+    }).collect();
+
+    // Add embeddings models to the main models list
+    models.extend(embeddings_models);
 
     Json(ModelListResponse {
         object: "list".to_string(),

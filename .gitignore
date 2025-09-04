@@ -77,3 +77,4 @@ venv/
 !/scripts/cli.ts
 /**/.*.bun-build
 /AGENTS.md
+.claude
